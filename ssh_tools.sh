@@ -1,90 +1,25 @@
 #!/bin/bash
 
-# ------------- 主函数 -------------
-main_menu() {
-    while true; do
-        clear
-        echo -e "${PINK}"
-        echo "===================================================================================================="
-        echo "     ██        ██            ██        ██              ██                       ██                   "
-        echo "     ██        ██         ██           ██  ██          ██                       ████████             "
-        echo "     ██        ██      ██       ██     ████            ██                       ██                   "
-        echo " ████████  ██████████  ████████████  ████        ██  ██████████ █████████   █████████████              "
-        echo "     ██        ██                 ██    ███████████    ██    ██ ██     ██   ██         ██              "
-        echo "     ██        ██      ████████████    ██              ██    ██ ██     ██   ██         ██              "
-        echo "     ████   ████████   ██ ██████ ██    ██      ██      ██    ██ ██     ██   ██         ██              "
-        echo "   ████     ██    ██   ██        ██    ██████████      ██    ██ ██     ██   █████████████              "
-        echo "██   ██       ██ ██    ██ ██████ ██    ██              ██    ██ ██     ██  ██           ██             "
-        echo "     ██       ████     ██        ██    ██       ██    ██     ██ ██     ██  ██  ██    ██  ██            "
-        echo "   ████   ████    ████ ██      ████      █████████  ██     ████ █████████ ██   ██    ██    ██    v0.1  "
-        echo "===================================================================================================="   
-        echo -e "${NC}"                                
-        title "主菜单：$(detect_os)"
-        echo -e "${BLUE}1) 系统源更新/设置${NC}"
-        echo -e "${YELLOW}2) 系统测试常用的工具${NC}"
-        echo -e "${GREEN}3) 网站建站工具${NC}"
-        echo -e "${PINK}4) 系统面板管理工具${NC}"
-        echo -e "${MAGENTA}5) VPN搭建工具${NC}"
-        echo -e "${CYAN}6) 网络安全工具${NC}"
-        echo -e "${GREEN}7) 其他扩展工具${NC}"
-        echo -e "${RED}0) 退出${NC}"
-        read -p "请输入选项: " sel
-
-        case $sel in
-            1) submenu1 ;;
-            2) submenu2 ;;
-            3) submenu3 ;;
-            4) submenu4 ;;
-            5) submenu5 ;;
-            6) submenu6 ;;
-            7) submenu7 ;;
-            0) exit 0 ;;
-            *) error "无效选项"; sleep 1 ;;
-        esac
-    done
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ------------- 函数 （复用）-------------
-
 # 颜色定义（可选）
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
+NC='\033[0m'  #RESET
+BLACK='\033[0;30m'
 RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-PINK='\033[1;35m'
-MAGENTA='\033[1;35m' #紫色
-NC='\033[0m' # 无色
-#打印标题
+WHITE='\033[1;37m'
+
+# 打印标题
 title() {
-    echo -e "${PINK}========== $1 ==========${NC}" >&2
+    echo -e "${GREEN}========== $1 ==========${NC}" >&2
 }
 info(){
-    echo -e "${BLUE}[INFO]  $1${NC}" >&2
+    echo -e "${NC}[INFO]  $1${NC}" >&2
+}
+success(){
+    echo -e "${BLUE}[success]  $1${NC}" >&2
 }
 error(){
     echo -e "${RED}[ERROR]  $1${NC}" >&2
@@ -92,10 +27,11 @@ error(){
 warn(){
     echo -e "${YELLOW}[warning]  $1${NC}" >&2
 }
-success(){
-    echo -e "${GREEN}[success]  $1${NC}" >&2
-}
-#检测系统发行版和版本
+
+
+# ------------- 函数 （复用）-------------
+
+# 获取系统发行版本
 detect_os() {
     # 初始化变量
     local os_id=""
@@ -150,37 +86,7 @@ detect_os() {
     fi
     echo "$os_id"
 }
-#检测运行的命令是否正确
-check_cmd() {
-    if ! command -v "$1" &>/dev/null; then
-        return 1
-    fi
-    return 0
-}
 
-
-# 进度条函数
-show_spinner() {
-    local pid=$1
-    local delay=0.1
-    # 定义旋转字符数组（每个元素是一个完整的字符）
-    local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
-    # 如果终端不支持 Braille，可以使用以下 ASCII 数组：
-    # local spin_chars=('|' '/' '-' '\')
-    # local spin_chars=('.' 'o' 'O' '0')
-    tput sc  # 保存光标位置
-    local i=0
-    while kill -0 "$pid" 2>/dev/null; do
-    tput rc
-    # 输出方括号和当前字符，使用 %s
-    printf "[%s]" "${spin_chars[$i]}"
-    i=$(( (i+1) % ${#spin_chars[@]} ))
-    sleep $delay
-    done
-    tput rc
-    printf "   "   # 覆盖三个字符（方括号和字符）
-    tput rc
-}
 # 检测系统类型并安装缺失工具
 check_and_install_tools() {
     local -n pkg_map_ref=$1
@@ -200,7 +106,6 @@ check_and_install_tools() {
 
     warn "检测到以下工具缺失：${missing_tools[*]}，尝试安装..."
 
-    
     # 设置安装命令（根据系统类型）
     local install_cmd=""
     case "$(detect_os)" in
@@ -243,91 +148,43 @@ check_and_install_tools() {
             go_back
         fi
     done
-    
 }
 
-
-
-# 倒计时返回
-countdown(){
-	# 倒计时返回
-	for i in {40..1}; do
-	echo -ne "\r倒计时: $i 秒后返回菜单，按任意键跳过... "
-	if read -t 1 -n 1; then
-	    echo -e "\n"
-	    break
-	fi
-	done
-}
-#没有倒计时返回
-go_back(){
-    echo -ne "按任意键跳过返回菜单... "
-	if read -n 1; then
-	    echo -e "\n"
-	    return
-	fi
-}
-# 验证端口号
-validate_port() {
-    
-    local port=$1
-    while true; do
-        read -p "请输入代理访问监听端口 (1-65535，回车默认 $port): " LISTEN_PORT
-        LISTEN_PORT=${LISTEN_PORT:-$port}
-        if ! [[ $LISTEN_PORT =~ ^[0-9]+$ ]] && [ $LISTEN_PORT -ge 1 ] && [ $LISTEN_PORT -le 65535 ] ; then
-            error "无效端口号，请输入 1-65535 之间的数字。"
-            continue
-        fi
-        if ss -tln | grep -q ":$LISTEN_PORT "; then
-            warn "警告：端口 $LISTEN_PORT 已被占用，可以选择其他端口。"
-            read -p "是否继续使用该端口？(y/n, 默认n): " confirm
-            [[ "$confirm" == "y" ]] && break || continue
-        else
-            break
-        fi
-    done
+# 检测命令是否正确
+check_cmd() {
+    if ! command -v "$1" &>/dev/null; then
+        return 1
+    fi
+    return 0
 }
 
+# 检测服务是否运行
+check_service(){
+    local service_name="$1"
 
-#子选择菜单函数
-select_menu() {
-    local prompt="$1"
-    shift
-    local options=("$@")
-    local selected=0
+    # 1. 检查服务单元文件是否存在
+    if ! sudo systemctl list-unit-files --full --all | grep -q "^${service_name}\.service"; then
+        return 2
+    fi
 
-    while true; do
-        clear
-        echo -e "${PINK}====== $prompt ======${NC}"
-        for i in "${!options[@]}"; do
-            # 显示编号（从1开始）
-            local num=$((i+1))
-            if [[ $i -eq $selected ]]; then
-                # 高亮显示当前选项（可选，仍保留视觉提示）
-                tput rev
-                echo "  $num. ${options[$i]}"
-                tput sgr0
-            else
-                echo "  $num. ${options[$i]}"
-            fi
-        done
-
-        # 读取用户输入
-        read -p "请输入数字选择（1-${#options[@]}）：" input
-        # 检查输入是否为数字且有效
-        if [[ "$input" =~ ^[0-9]+$ ]] && (( input >= 1 && input <= ${#options[@]} )); then
-            # 转换为0基索引并返回
-            selected=$((input - 1))
-            return $selected
-        else
-            # 无效输入，显示错误并等待继续（保留循环，不清屏太频繁）
-            echo "无效输入，请重新输入（数字1-${#options[@]}）"
-            sleep 1
-        fi
-    done
+    # 2. 检查服务是否激活（运行中）
+    if sudo systemctl is-active --quiet "$service_name"; then
+        return 0
+    else
+        return 1
+    fi
 }
 
-#获取公网IP
+# 获取hostname
+get_hostname(){
+    if check_cmd hostname; then
+        hostname
+    else
+        echo "hostname 未知"
+    fi
+}
+
+# 获取公网IP
 get_public_ip(){
     if check_cmd curl; then
         public_ip=$(curl -s --max-time 5 ifconfig.me 2>/dev/null || curl -s --max-time 5 icanhazip.com 2>/dev/null)
@@ -347,39 +204,27 @@ get_public_ip(){
     fi
 }
 
-docker_install_sh() {
-    if ! check_cmd docker &>/dev/null; then
-        warn "Docker 未安装，开始安装..."
-        # 安装 Docker
-        echo -n "Docker 正在安装 ... "
-        sudo curl -sSL https://get.docker.com | sudo bash >/dev/null 2>&1 &
-        local install_pid=$!
-        show_spinner "$install_pid"
-        wait "$install_pid"
-        if [ $? -eq 0 ]; then
-            success "Docker 安装成功，正在启动服务..."
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            success "Docker 服务已启动并设置开机自启"
-            return 0
+# 验证端口号
+validate_port() {
+    local port=$1
+    while true; do
+        read -p "请输入代理访问监听端口 (1-65535，回车默认 $port): " LISTEN_PORT
+        LISTEN_PORT=${LISTEN_PORT:-$port}
+        if ! [[ $LISTEN_PORT =~ ^[0-9]+$ ]] && [ $LISTEN_PORT -ge 1 ] && [ $LISTEN_PORT -le 65535 ] ; then
+            error "无效端口号，请输入 1-65535 之间的数字。"
+            continue
+        fi
+        if ss -tln | grep -q ":$LISTEN_PORT "; then
+            warn "警告：端口 $LISTEN_PORT 已被占用，可以选择其他端口。"
+            read -p "是否继续使用该端口？(y/n, 默认n): " confirm
+            [[ "$confirm" == "y" ]] && break || continue
         else
-            error "Docker 安装失败"
-            return 1
+            break
         fi
-    else
-        warn "Docker 已存在，跳过安装。"
-        # 即使已安装，也确保服务正在运行（可选）
-        if ! systemctl is-active --quiet docker; then
-            warn "Docker 服务未运行，正在启动..."
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            
-        fi
-        return 0
-    fi
+    done
 }
 
-#判断软件是否安装(docker)
+# 判断是否已安装(docker)
 check_docker(){
     local docker_name=$1
     # 检查 docker 命令是否可用
@@ -409,25 +254,41 @@ check_docker(){
         echo "$docker_name 未安装"
     fi
     return 0
-
 }
-check_service(){
-    local service_name="$1"
 
-    # 1. 检查服务单元文件是否存在
-    if ! sudo systemctl list-unit-files --full --all | grep -q "^${service_name}\.service"; then
-        return 2
-    fi
-
-    # 2. 检查服务是否激活（运行中）
-    if sudo systemctl is-active --quiet "$service_name"; then
-        return 0
+# 安装docker
+docker_install_sh() {
+    if ! check_cmd docker &>/dev/null; then
+        warn "Docker 未安装，开始安装..."
+        # 安装 Docker
+        echo -n "Docker 正在安装 ... "
+        sudo curl -sSL https://get.docker.com | sudo bash >/dev/null 2>&1 &
+        local install_pid=$!
+        show_spinner "$install_pid"
+        wait "$install_pid"
+        if [ $? -eq 0 ]; then
+            success "Docker 安装成功，正在启动服务..."
+            sudo systemctl start docker
+            sudo systemctl enable docker
+            success "Docker 服务已启动并设置开机自启"
+            return 0
+        else
+            error "Docker 安装失败"
+            return 1
+        fi
     else
-        return 1
+        warn "Docker 已存在，跳过安装。"
+        # 即使已安装，也确保服务正在运行（可选）
+        if ! systemctl is-active --quiet docker; then
+            warn "Docker 服务未运行，正在启动..."
+            sudo systemctl start docker
+            sudo systemctl enable docker
+        fi
+        return 0
     fi
 }
 
-#验证定时任务的输入
+# 验证cron的输入
 validate_cron_nput() {
     local input="$1"
     local field="$2"
@@ -455,23 +316,166 @@ validate_cron_nput() {
     fi
 }
 
+# 进度条函数
+show_spinner() {
+    local pid=$1
+    local delay=0.1
+    # 定义旋转字符数组（每个元素是一个完整的字符）
+    local spin_chars=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+    # 如果终端不支持 Braille，可以使用以下 ASCII 数组：
+    # local spin_chars=('|' '/' '-' '\')
+    # local spin_chars=('.' 'o' 'O' '0')
+    tput sc  # 保存光标位置
+    local i=0
+    while kill -0 "$pid" 2>/dev/null; do
+    tput rc
+    # 输出方括号和当前字符，使用 %s
+    printf "[%s]" "${spin_chars[$i]}"
+    i=$(( (i+1) % ${#spin_chars[@]} ))
+    sleep $delay
+    done
+    tput rc
+    printf "   "   # 覆盖三个字符（方括号和字符）
+    tput rc
+}
+
+# 30秒倒计时返回
+countdown(){
+	# 倒计时返回
+	for i in {30..1}; do
+	echo -ne "\r倒计时: $i 秒后返回菜单，按任意键跳过... "
+	if read -t 1 -n 1; then
+	    echo -e "\n"
+	    break
+	fi
+	done
+}
+
+# 无倒计时返回
+go_back(){
+    echo -ne "按任意键跳过返回菜单... "
+	if read -n 1; then
+	    echo -e "\n"
+	    return
+	fi
+}
+
+# 子选择菜单函数
+select_menu() {
+    local prompt="$1"
+    shift
+    local options=("$@")
+    local selected=0
+
+    while true; do
+        clear
+        echo -e "${GREEN}====== $prompt ======${NC}"
+        for i in "${!options[@]}"; do
+            # 显示编号（从0开始）
+            local num=$((i))
+            if [[ $i -eq $selected ]]; then
+                # 高亮显示当前选项（可选，仍保留视觉提示）
+                tput rev
+                echo "  $num. ${options[$i]}"
+                tput sgr0
+            else
+                echo "  $num. ${options[$i]}"
+            fi
+        done
+
+        # 读取用户输入
+        read -p "请输入数字选择（0-${#options[@]}）：" input
+        # 检查输入是否为数字且有效
+        if [[ "$input" =~ ^[0-9]+$ ]] && (( input >= 0 && input < ${#options[@]} )); then
+            # 转换为0基索引并返回
+            selected=$((input))
+            return $selected
+        else
+            echo "无效输入，请重新输入（数字0-${#options[@]}）"
+            sleep 1
+        fi
+    done
+}
+
+
+
+
+
+
+
+
+
+
+# ------------- 主函数 -------------
+main_menu() {
+    while true; do
+        clear
+        echo -e "${BLUE}"
+        echo "===================================================================================================="
+        echo "     ██        ██            ██        ██              ██                       ██                   "
+        echo "     ██        ██         ██           ██  ██          ██                       ████████             "
+        echo "     ██        ██      ██       ██     ████            ██                       ██                   "
+        echo " ████████  ██████████  ████████████  ████        ██  ██████████ █████████   █████████████              "
+        echo "     ██        ██                 ██    ███████████    ██    ██ ██     ██   ██         ██              "
+        echo "     ██        ██      ████████████    ██              ██    ██ ██     ██   ██         ██              "
+        echo "     ████   ████████   ██ ██████ ██    ██      ██      ██    ██ ██     ██   ██         ██              "
+        echo "   ████     ██    ██   ██        ██    ██████████      ██    ██ ██     ██   █████████████              "
+        echo "██   ██       ██ ██    ██ ██████ ██    ██              ██    ██ ██     ██  ██           ██             "
+        echo "     ██       ████     ██        ██    ██       ██    ██     ██ ██     ██  ██  ██    ██  ██            "
+        echo "   ████   ████    ████ ██      ████      █████████  ██     ████ █████████ ██   ██    ██    ██    v0.1  "
+        echo "===================================================================================================="   
+        echo "                                                                                                       "
+        echo "  支持系统:Debian系：Debian | Ubuntu | Kali | Linux Mint | RaspberryPi | Alpine"
+        echo "           RedHat系：RedHat | CentOS | Fedora | rocky | almalinux"
+        echo "           其他系：Opensuse | Suse | arch | manjaro"
+        echo -e "${NC}"                                
+        title "主菜单- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))"
+        echo -e "${NC}0) 退出${NC}"
+        echo -e "${NC}1) 系统更新/系统信息/网络测速/设置cron/清理系统${NC}"
+        echo -e "${NC}2) 系统面板管理工具${NC}"
+        echo -e "${NC}3) VPN搭建工具${NC}"
+        echo -e "${NC}4) 网络安全工具${NC}"
+        echo -e "${NC}5) AI開発工具${NC}"
+        read -p "请输入选项: " sel
+
+        case $sel in
+            0) exit 0 ;;
+            1) submenu1 ;;
+            2) submenu2 ;;
+            3) submenu3 ;;
+            4) submenu4 ;;
+            5) submenu5 ;;
+            6) submenu6 ;;
+            7) submenu7 ;;
+            *) error "无效选项"; sleep 1 ;;
+        esac
+    done
+}
+
 
 # ------------- 子菜单功能1 -------------
 submenu1() {
 	while true; do
-        select_menu "系统参数设置面板 - 当前系统: $(detect_os)" "系统源的更新" "设置系统定时执行的任务" "返回主菜单"
+        select_menu "子菜单功能1(系统更新/系统信息/网络测速/设置cron/清理系统)- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回主菜单" "系统更新" "系统信息" "网络测速" "性能测试(IO读/写)" "硬盘挂载"  "设置cron" "清理系统"
         choice=$?
         case $choice in
-            0) clear; update_repo && success "更新成功"; countdown ;;
-            1) clear; setup_cron ;;
-            2) return ;;
+            0) return ;;                                             #返回主菜单
+            1) clear; update_repo && success "更新成功"; countdown ;; #系统更新
+            2) clear; getsysinfo;go_back ;;                          #系统信息
+            3) clear; networktest  ;;                                #网络测速
+            4) clear; performancetest ;;                             #性能测试(IO读/写)
+            5) clear; mountingdisk ;;                                #硬盘挂载
+            6) clear; setup_cron ;;                                  #设置cron
+            7) clear; clean_system && success "清理成功"; countdown ;;#清理系统
         esac
 	done
 }
 
+# ===========================================
+# 系统更新
 update_repo(){
     case "$(detect_os)" in
-        ubuntu|debian|kali)
+        ubuntu|debian|kali|alpine)
             info "检测到 Debian/Ubuntu 系统，执行 apt update..."
             sudo apt update
             ;;
@@ -491,9 +495,45 @@ update_repo(){
             info "检测到 openSUSE 系统，执行 zypper refresh..."
             sudo zypper refresh
             ;;
-        alpine)
-            info "检测到 Alpine 系统，执行 apk update..."
-            sudo apk update
+        *)
+            info "未知或不支持的系统类型: $sys_type"
+            return 1
+            ;;
+    esac
+}
+# ===========================================
+
+
+# 清理系统
+clean_system() {
+    case "$(detect_os)" in
+        ubuntu|debian|kali|alpine)
+            info "检测到 Debian/Ubuntu 系统，执行 apt clean..."
+            sudo apt autoremove --purge -y && sudo apt clean -y && sudo apt autoclean -y
+            sudo apt remove --purge $(dpkg -l | awk '/^rc/ {print $2}') -y
+            # 清理包配置文件
+            sudo journalctl --vacuum-time=1s
+            sudo journalctl --vacuum-size=50M
+            # 移除不再需要的内核
+            sudo apt remove --purge $(dpkg -l | awk '/^ii linux-(image|headers)-[^ ]+/{print $2}' | grep -v $(uname -r | sed 's/-.*//') | xargs) -y
+            ;;
+        rhel|centos|fedora|rocky|almalinux)
+            info "检测到 RHEL/CentOS/Fedora 系统，执行 dnf clean/yum clean..."
+            if command -v dnf >/dev/null 2>&1; then
+                sudo dnf autoremove -y && dnf clean all
+                # 清理日志
+                sudo journalctl --vacuum-time=1s
+                sudo journalctl --vacuum-size=50M
+                # 移除不再需要的内核
+                sudo dnf remove $(rpm -q kernel | grep -v $(uname -r)) -y
+            else
+                sudo yum autoremove -y && yum clean all
+                # 清理日志
+                sudo journalctl --vacuum-time=1s
+                sudo journalctl --vacuum-size=50M
+                # 移除不再需要的内核
+                sudo yum remove $(rpm -q kernel | grep -v $(uname -r)) -y
+            fi   
             ;;
         *)
             info "未知或不支持的系统类型: $sys_type"
@@ -502,197 +542,13 @@ update_repo(){
     esac
 }
 
-setup_cron(){
-    while true; do
-        select_menu "设置系统定时执行的任务 - 当前系统: $(detect_os)" "添加定时任务" "查看当前系统定时任务" "删除定时任务" "返回上级菜单"
-        choice=$?
-        case $choice in
-            0) clear; add_cron; go_back ;;
-            1) clear; list_cron; go_back ;;
-            2) clear; delete_cron; go_back ;;
-            3) return ;;
-        esac
-	done
-}
-
-add_cron(){
-    title "添加定时任务"
-    cat << EOF
-    示例：
-        每天凌晨 3:30     → 分钟=30, 小时=3, 日期=*, 月份=*, 星期=*
-        每月1号 0:0       → 分钟=0, 小时=0, 日期=1, 月份=*, 星期=*
-        每周一 5:15       → 分钟=15, 小时=5, 日期=*, 月份=*, 星期=1
-        每 10 分钟        → 分钟=*/10, 小时=*, 日期=*, 月份=*, 星期=*
-EOF
-    title "输入定时任务执行的时间"
-    # 获取分钟
-    while true; do
-        read -p "分钟 (0-59, 默认 *) : " minute
-        if validate_cron_nput "$minute" "分钟" 0 59; then
-            minute=${minute:-*}
-            break
-        fi
-    done
-
-    # 获取小时
-    while true; do
-        read -p "小时 (0-23, 默认 *) : " hour
-        if validate_cron_nput "$hour" "小时" 0 23; then
-            hour=${hour:-*}
-            break
-        fi
-    done
-
-    # 获取日期（月份中的第几天）
-    while true; do
-        read -p "日期 (1-31, 默认 *) : " day
-        if validate_cron_nput "$day" "日期" 1 31; then
-            day=${day:-*}
-            break
-        fi
-    done
-
-    # 获取月份
-    while true; do
-        read -p "月份 (1-12, 默认 *) : " month
-        if validate_cron_nput "$month" "月份" 1 12; then
-            month=${month:-*}
-            break
-        fi
-    done
-
-    # 获取星期
-    while true; do
-        read -p "星期 (0-7, 0和7=周日, 默认 *) : " weekday
-        if validate_cron_nput "$weekday" "星期" 0 7; then
-            weekday=${weekday:-*}
-            break
-        fi
-    done
-
-    # 获取要执行的命令
-    while true; do
-        read -p "请输入要定时执行的完整命令（例如：/usr/bin/backup.sh）: " command
-        if [[ -z "$command" ]]; then
-            error "命令不能为空，请重新输入"
-        else
-            break
-        fi
-    done
-    # 生成cron表达式
-    local cron_line="$minute $hour $day $month $weekday $command"
-    
-    # 显示确认信息
-    warn "即将添加以下定时任务："
-    info "    $cron_line"
-    read -p "确认添加吗？(y/N) " confirm
-    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-        success "已取消操作。"
-    else
-        # 备份当前 crontab
-        sudo crontab -l > /tmp/crontab_backup_$$ 2>/dev/null
-        if [[ $? -eq 0 ]]; then
-            success "已备份当前 crontab 到 /tmp/crontab_backup_$$"
-        fi
-
-        # 添加新任务（先去重，避免完全相同的行重复）
-        sudo crontab -l 2>/dev/null | grep -Fx "$cron_line" >/dev/null
-        if [[ $? -eq 0 ]]; then
-            warn "警告：该定时任务已经存在于 crontab 中，不会重复添加。"
-        else
-            (sudo crontab -l 2>/dev/null; echo "$cron_line") | crontab -
-            if [[ $? -eq 0 ]]; then
-                success "成功添加定时任务！"
-                info "当前用户的所有 crontab 任务如下："
-                crontab -l
-            else
-                error "添加失败，请检查权限或 crontab 格式。"
-            fi
-        fi
-    fi
-
-}
-
-# 查看定时任务
-list_cron() {
-    title "当前系统定时任务:"
-    sudo crontab -l 2>/dev/null || echo "没有设置定时任务"
-
-}
-
-delete_cron(){
-    # 获取当前定时任务
-    sudo crontab -l > /tmp/current_crontab 2>/dev/null
-    
-    # 检查是否有定时任务
-    if [ ! -s /tmp/current_crontab ]; then
-        warn "没有设置定时任务"
-        sudo rm -f /tmp/current_crontab
-        
-    else
-        # 列出定时任务并编号
-        title "当前定时任务:"
-        echo "------------------"
-        local line_num=1
-        while IFS= read -r line; do
-            if [ -n "$line" ]; then
-                echo "$line_num. $line"
-                line_num=$((line_num + 1))
-            fi
-        done < /tmp/current_crontab
-        echo "------------------"
-        
-        while true; do
-            read -p "请输入要删除的任务编号: " choice
-            if [[ ! $choice =~ ^[0-9]+$ ]]; then
-                error "错误: 请输入有效的数字"
-                sudo rm -f /tmp/current_crontab
-                continue
-            fi
-            local total_lines=$(wc -l < /tmp/current_crontab)
-            if [ $choice -lt 1 ] || [ $choice -gt $total_lines ]; then
-                error "错误: 无效的任务编号"
-                sudo rm -f /tmp/current_crontab
-                continue
-            fi
-            # 删除选中的任务
-            local line_to_delete=$choice
-            sudo awk -v line="$line_to_delete" 'NR != line' /tmp/current_crontab > /tmp/new_crontab
-
-            sudo crontab /tmp/new_crontab
-            if [ $? -eq 0 ]; then
-                success "成功: 定时任务已删除"
-            else
-                error "错误: 定时任务删除失败"
-            fi
-            break
-        done
-        sudo rm -f /tmp/current_crontab /tmp/new_crontab
-    fi
-  
-}
 
 
-
-
-# ------------- 子菜单功能2 -------------
-submenu2() {
-    while true; do
-        select_menu "系统测试常用的工具- 当前系统: $(detect_os)" "获取系统信息详细" "服务器网络测试" "服务器性能测试(硬盘读/写)" "硬盘挂载" "返回主菜单"
-        choice=$?
-        case $choice in
-            0) clear;submenu2-1;go_back ;;
-            1) clear;submenu2-2  ;;
-            2) clear;submenu2-3 ;;
-            3) clear;submenu2-4 ;;
-            4) return ;;
-        esac
-    done
-}
-
-submenu2-1(){
+# ===========================================
+# 系统信息
+getsysinfo(){
     # 1. 系统版本和类型
-    title "系统版本和类型"
+    title "1. 系统版本和类型"
     if check_cmd hostnamectl; then
         hostnamectl | grep -E "Operating System|Kernel|Architecture" | sed 's/^[[:space:]]*//' || true
     elif [ -f /etc/os-release ]; then
@@ -704,16 +560,16 @@ submenu2-1(){
     else
         error "无法获取系统版本信息"
     fi
-    info "内核版本: $(uname -r)"
+    echo "内核版本: $(uname -r)"
     echo
 
     # 2. 内核详细信息
-    title "内核"
-    uname -a
+    title "2. 内核详细信息"
+    info "内核详细信息:$(uname -a)"
     echo
 
-    # 3. CPU 参数
-    title "CPU 参数"
+    # 3. CPU
+    title "3. CPU"
     if [ -f /proc/cpuinfo ]; then
         info "CPU 型号: $(grep "model name" /proc/cpuinfo | head -1 | cut -d: -f2 | sed 's/^[ \t]*//')"
         info "物理 CPU 数: $(grep "physical id" /proc/cpuinfo | sort -u | wc -l)"
@@ -728,16 +584,18 @@ submenu2-1(){
         error "无法读取 CPU 信息"
     fi
     echo
-    # 4. 内存大小
-    title "内存大小"
+    
+    # 4. 内存
+    title "4. 内存"
     if check_cmd free; then
         free -h
     else
         error "无法获取内存信息"
     fi
     echo
-    # 5. 硬盘大小
-    title "硬盘大小"
+    
+    # 5. 硬盘
+    title "5. 硬盘"
     if check_cmd lsblk; then
         info "物理磁盘信息："
         lsblk -d -o NAME,SIZE,MODEL 2>/dev/null || lsblk -d -o NAME,SIZE
@@ -746,31 +604,15 @@ submenu2-1(){
         df -h --total 2>/dev/null || df -h
     fi
     echo
-    # 6. 后台运行的程序（仅显示运行软件，过滤内核线程）
-    title "后台运行的程序"
-    if check_cmd ps; then
-        # 过滤掉内核线程（COMMAND 列包含 [ 的进程）
-        total=$(ps aux | grep -c -v '\[.*\]')
-        info "运行软件列表（过滤内核线程，仅显示前20行，总数：$total）："
-        ps aux | grep -v '\[.*\]' | head -20
-    else
-        error "ps 命令不可用"
-    fi
-    echo
 
-    # 7. 系统的目录结构（根目录）
-    title "系统的目录结构（根目录）"
-    ls -la /
-    echo
-    #8. 网络 IP 地址和网卡（内网 + 公网）
-    title "网络 IP 地址和网卡"
-    echo "--- 内网 IP 地址（含回环）---"
+    # 6. 网络IP和网卡（内网 + 公网）
+    title "6. 网络IP和网卡"
     if check_cmd ip; then
         # 显示所有 IPv4 地址，包括回环
         ip -4 -o addr show | while read line; do
             iface=$(echo "$line" | awk '{print $2}' | cut -d: -f1)
             addr=$(echo "$line" | awk '{print $4}' | cut -d/ -f1)
-            info "接口: $iface, IP: $addr"
+            info "接口: $iface  IP: $addr"
         done
     elif check_cmd ifconfig; then
         ifconfig -a | grep -E '^[a-z]|inet ' | while read line; do
@@ -778,20 +620,41 @@ submenu2-1(){
                 iface=$(echo "$line" | cut -d: -f1)
             elif [[ $line =~ inet[[:space:]]+([0-9.]+) ]]; then
                 addr="${BASH_REMATCH[1]}"
-                info "接口: $iface, IP: $addr"
+                info "接口: $iface  IP: $addr"
             fi
         done
     else
         error "无法获取内网 IP（缺少 ip/ifconfig 命令）"
     fi
-
-    title "公网 IP 地址"
-        info "公网的 IP $(get_public_ip)"
+    info "公网IP: $(get_public_ip)"
+    echo
+    
+    # 7. 进程（仅显示运行软件，过滤内核线程）
+    title "7. 进程"
+    if check_cmd ps; then
+        # 过滤掉内核线程（COMMAND 列包含 [ 的进程）
+        total=$(ps aux | grep -c -v '\[.*\]')
+      # ps aux --sort=-pmem | grep -v '\[.*\]' | head -20
+        ps aux --sort=-pmem | grep -v '\[.*\]' 
+        info "进程列表（过滤内核线程，总数：$total）："
+    else
+        error "ps 命令不可用"
+    fi
     echo
 
-
-    # 9. 系统安装的软件
-    title "系统安装的软件"
+    # 8. 服务
+    title "8. 服务"
+    if check_cmd pstree; then
+        pstree 
+        info "===============服务一覧(起動中)==============="
+        sudo systemctl list-units --type=service --state=running
+    else
+        error "pstree 命令不可用"
+    fi
+    echo
+    
+    # 8. 已安装软件（仅显示前20行）
+    title "8. 已安装软件（仅显示前20行）"
     if command -v dpkg &>/dev/null; then
         info "Debian/Ubuntu 系统，已安装软件包列表（dpkg -l）："
         # 使用 2>/dev/null 隐藏 dpkg 可能产生的错误（如权限不足）
@@ -817,23 +680,62 @@ submenu2-1(){
         error "无法识别的包管理器，无法列出已安装软件"
     fi
     echo
-
 }
-submenu2-2(){
+# ===========================================
+
+
+# ===========================================
+# 网络测速
+networktest(){
     while true; do
-        select_menu "服务器网络测试 - $(get_public_ip)" "三网回程延迟路由测试(besttrace)" "三网回程线路测试(mtr_trace)" "网络带宽测试" "返回上级菜单"
+        select_menu "网络测速 - $(get_public_ip)" "返回上级菜单" "三网回程延迟路由测试(besttrace)" "三网回程线路测试(mtr_trace)" "网络带宽测试(iperf3)"
         choice=$?
         case $choice in
-            0) clear;return_trip_besttrace ; go_back;;
-            1) clear;return_trip_mtr_trace;go_back;;
-            2) clear;network_speed;go_back;;
-            3) return ;;
+            0) return ;;
+            1) clear;return_trip_besttrace; go_back;; #三网回程延迟路由测试(besttrace)
+            2) clear;return_trip_mtr_trace; go_back;; #三网回程线路测试(mtr_trace)
+            3) clear;network_speed; go_back;;         #网络带宽测试(iperf3)
         esac
     done
-
 }
 
-#安装besttrace函数
+# 三网回程延迟路由测试(besttrace)
+return_trip_besttrace(){
+    if check_cmd "besttrace" ; then
+        success "besttrace工具已存在"
+    else
+        install_besttrace
+    fi
+    #设置token
+    while true; do
+        select_menu "TONKEN选项(https://user.ipip.net/client.php)" "返回上级菜单" "使用脚本自带Token"
+        choice=$?
+        case $choice in
+            0) return ;;
+            1) echo "1cd98e5f1ada678a4c4501f38b7c9eb5d6a60267" > besttrace.lic ;break;;
+        esac
+    done
+    # 定义测试节点 (使用关联数组，需 Bash 4.0+)
+    local -A NODES=(
+    #    ["北京电信"]="219.141.147.210"
+    #    ["北京联通"]="202.106.50.1"
+    #    ["北京移动"]="221.179.155.161"
+         ["上海电信"]="202.96.209.133"
+         ["上海联通"]="210.22.97.1"
+         ["上海移动"]="211.136.112.200"
+    #    ["广州电信"]="202.96.128.86"
+    #    ["广州联通"]="157.122.10.21"
+    #    ["广州移动"]="211.139.129.5"
+    #    ["深圳电信"]="58.60.188.222"
+    #    ["深圳联通"]="210.21.196.6"
+    #    ["深圳移动"]="120.196.165.24"
+    )
+    title "三网回程延迟路由测试 (besttrace)"
+    for name in "${!NODES[@]}"; do
+        besttrace_node "$name" "${NODES[$name]}"
+    done
+}
+# 安装besttrace
 install_besttrace(){
     local -A MY_PKG_MAP=(
         ["unzip"]="unzip"
@@ -902,101 +804,77 @@ install_besttrace(){
             echo "保留 $ZIP_FILE，下次运行可跳过下载。"
         fi
         title "besttrace 安装成功！"
-    
     fi
-}
-return_trip_besttrace(){
-
-    if check_cmd "besttrace" ; then
-        success "besttrace工具已存在"
-    else
-        install_besttrace
-    fi
-    #设置token
-    while true; do
-        select_menu "TONKEN选项(https://user.ipip.net/client.php)" "使用脚本自带Token" "输入自己的Token" "返回上级菜单"
-        choice=$?
-        case $choice in
-            0) echo "1cd98e5f1ada678a4c4501f38b7c9eb5d6a60267">besttrace.lic ;break;;
-            1) read -p "请输入ipip的Token: " ipip_token; echo "${ipip_token}">besttrace.lic ;break ;;
-            2) return ;;
-        esac
-    done
-    # 定义测试节点 (使用关联数组，需 Bash 4.0+)
-    local -A NODES=(
-        ["北京电信"]="219.141.147.210"
-        ["上海电信"]="202.96.209.133"
-        ["广州电信"]="202.96.128.86"
-        ["北京联通"]="202.106.50.1"
-        ["上海联通"]="210.22.97.1"
-        ["广州联通"]="157.122.10.21"
-        ["北京移动"]="221.179.155.161"
-        ["上海移动"]="211.136.112.200"
-        ["广州移动"]="211.139.129.5"
-    )
-    title "三网回程延迟路由测试 (besttrace)"
-    for name in "${!NODES[@]}"; do
-        besttrace_node "$name" "${NODES[$name]}"
-    done
-
-    
-
 }
 # besttrace测试节点
 besttrace_node() {
     local name="$1"
     local ip="$2"
     title  "测试节点：$name ($ip) "
-    besttrace -q 1 -n  -g cn "$ip" 
-    echo ""
+    if [ "$EUID" -eq 0 ]; then
+        # 当前为 root 用户，直接移动
+        besttrace -q 1 -n -g cn "$ip"
+    else
+        # 非 root 用户，尝试使用 sudo
+        sudo besttrace -q 1 -n -g cn "$ip"
+    fi
+    echo
 }
 
+
+# 三网回程线路测试(mtr_trace)
 return_trip_mtr_trace(){
-	sudo apt update -y && apt install mtr -y
-	sudo yum clean all && yum makecache && yum install mtr -y
+    if check_cmd "mtr" ; then
+        success "mtr_trace工具已存在"
+    else
+        sudo apt install mtr -y
+	    sudo yum clean all && yum makecache && yum install mtr -y
+    fi	
 	clear
-    iplise=(219.141.136.12 202.106.50.1 221.179.155.161 202.96.209.133 210.22.97.1 211.136.112.200 58.60.188.222 210.21.196.6 120.196.165.24)
-    iplocal=(北京电信 北京联通 北京移动 上海电信 上海联通 上海移动 深圳电信 深圳联通 深圳移动)
+   #iplise=(219.141.136.12 202.106.50.1 221.179.155.161 202.96.209.133 210.22.97.1 211.136.112.200 58.60.188.222 210.21.196.6 120.196.165.24)
+   #iplocal=(北京电信 北京联通 北京移动 上海电信 上海联通 上海移动 深圳电信 深圳联通 深圳移动)
+    iplise=(202.96.209.133 210.22.97.1 211.136.112.200)
+    iplocal=(上海电信 上海联通 上海移动)
     echo -e "\n正在测试,请稍等..."
     echo -e "——————————————————————————————\n"
-    for i in {0..8}; do
-        mtr -r --n --tcp -i 1 ${iplise[i]} > /root/traceroute_testlog
-        grep -q "59\.43\." /root/traceroute_testlog
+    for i in {0..2}; do
+        sudo mtr -r --n --tcp -i 1 ${iplise[i]} > ~/mtr_trace_test.log
+        grep -q "59\.43\." ~/mtr_trace_test.log
         if [ $? == 0 ];then
-            grep -q "202\.97\."  /root/traceroute_testlog
+            grep -q "202\.97\."  ~/mtr_trace_test.log
             if [ $? == 0 ];then
             echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;32m电信CN2 GT\033[0m"
             else
             echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;31m电信CN2 GIA\033[0m"
             fi
         else
-            grep -q "202\.97\."  /root/traceroute_testlog
+            grep -q "202\.97\."  ~/mtr_trace_test.log
             if [ $? == 0 ];then
-                grep -q "219\.158\." /root/traceroute_testlog
+                grep -q "219\.158\." ~/mtr_trace_test.log
                 if [ $? == 0 ];then
                 echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;33m联通169\033[0m"
                 else
                 echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;34m电信163\033[0m"
                 fi
             else
-                    grep -q "218\.105\."  /root/traceroute_testlog
+                    grep -q "218\.105\."  ~/mtr_trace_test.log
                     if [ $? == 0 ];then
                     echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;35m联通9929\033[0m"
                     else
-                        grep -q "219\.158\."  /root/traceroute_testlog
+                        grep -q "219\.158\."  ~/mtr_trace_test.log
                         if [ $? == 0 ];then
-                            grep -q "219\.158\.113\." /root/traceroute_testlog
+                            grep -q "219\.158\.113\." ~/mtr_trace_test.log
                             if [ $? == 0 ];then
                             echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;33m联通AS4837\033[0m"
                             else
                             echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;33m联通169\033[0m"
                             fi
                         else				
-                            grep -q "223\.120\."  /root/traceroute_testlog
+                            grep -q "223\.120\."  ~/mtr_trace_test.log
                             if [ $? == 0 ];then
                             echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;35m移动CMI\033[0m"
                             else
-                                grep -q "221\.183\."  /root/traceroute_testlog
+                                grep -q "221\.183\."  ~/mtr_trace_test.log
                                 if [ $? == 0 ];then
                                 echo -e "目标:${iplocal[i]}[${iplise[i]}]\t回程线路:\033[1;35m移动cmi\033[0m"
                                 else
@@ -1009,13 +887,13 @@ return_trip_mtr_trace(){
         fi
     echo 
     done
-    rm -f /root/traceroute_testlog
+    cat ~/mtr_trace_test.log
+    rm -f ~/mtr_trace_test.log
     echo -e "\n——————————————————————————————\n本脚本测试结果为TCP回程路由,非ICMP回程路由 仅供参考,以最新IP段为准 谢谢\n"
-
 }
-#网络测试
-network_speed(){
 
+# 网络带宽测试(iperf3)
+network_speed(){
     if check_cmd "iperf3" ; then
         success "iperf3工具已存在"
     else
@@ -1065,11 +943,12 @@ network_speed(){
         echo "busy | busy"
     }
     SERVERS=(
-    "Online.net     | Paris, FR (10G)       | ping.online.net          | 5201"
-    "LeaseWeb       | Hong Kong (10G)       | speedtest.hkg12.hk.leaseweb.net | 5201"
-    "Clouvider      | Los Angeles, US (10G) | la.iperf.clouvider.net   | 5201"
-    "Speedtest.de   | Frankfurt, DE (10G)   | speedtest.wtnet.de       | 5200"
-    "Misaka.io      | Tokyo, JP (1G)        | tyo02.iperf.misaka.io    | 5201"
+    "Ashburn        | WastonD.C Ashburn (10G/B)| 66.35.22.79     | 30000"
+    "Paris          | Paris (10G/B)           | 96.45.42.156    | 30000"
+    "Frankfurt      | Frankfurt (10G/B)       | 96.45.39.38     | 30000"
+    "Singapore      | Singapore (10G/B)       | 96.45.38.22     | 30000"
+    "Tokyo          | Tokyo (10G/B)           | 23.249.60.154   | 30000"
+    "Hong Kong      | Hong Kong (10G/B)       | 23.249.58.14    | 30000"
     )
     title "网络带宽测试"
     printf "%-15s | %-22s | %-16s | %-16s | %-10s\n" "供应商" "  地区" "  上传速度" "  下载速度" "  Ping"
@@ -1094,10 +973,16 @@ network_speed(){
         printf "\r%-15s | %-22s | %-16s | %-16s | %-10s\n" "$provider" "$location" "$send" "$recv" "$ping_ms"
     done
 }
-submenu2-3(){
+# ===========================================
+
+
+
+# ===========================================
+#性能测试(IO读/写)
+performancetest(){
     #安装依赖工具
     if check_cmd "fio" && check_cmd "jq" && check_cmd "bc"; then
-        success "fio和jq工具已存在"
+        success "fio和jq和bc工具已存在"
     else
         local -A MY_PKG_MAP=(
             ["fio"]="fio"
@@ -1108,18 +993,19 @@ submenu2-3(){
     fi
 
     while true; do
-        select_menu "fio的四种核心测试" "随机读/写IOPS（模拟数据库查询等）" "顺序读吞吐量（模拟大文件拷贝、视频流播放）" "顺序写吞吐量（模拟大文件写入）" "混合随机读写与延迟（模拟复杂真实场景）" "返回主菜单"
+        select_menu "fio的四种核心测试" "返回主菜单" "随机读/写IOPS（模拟数据库查询等）" "顺序读吞吐量（模拟大文件拷贝、视频流播放）" "顺序写吞吐量（模拟大文件写入）" "混合随机读写与延迟（模拟复杂真实场景）"
         choice=$?
         case $choice in
-            0) clear;fio_iops_r_w;go_back;break ;;
-            1) clear;fio_iops_r;go_back;break ;;
-            2) clear;fio_iops_w;go_back;break ;;
-            3) clear;fio_iops_rw;go_back;break ;;
-            4) break ;;
+            0) break ;;
+            1) clear;fio_iops_r_w;go_back;break ;; #随机读/写IOPS（模拟数据库查询等）
+            2) clear;fio_iops_r;  go_back;break ;; #顺序读吞吐量（模拟大文件拷贝、视频流播放）
+            3) clear;fio_iops_w;  go_back;break ;; #顺序写吞吐量（模拟大文件写入）
+            4) clear;fio_iops_rw; go_back;break ;; #混合随机读写与延迟（模拟复杂真实场景）
         esac
     done
-
 }
+
+# 随机读/写IOPS（模拟数据库查询等）
 fio_iops_r_w(){
     # 定义关联数组：描述 -> 命令
     local -A commands=(
@@ -1129,6 +1015,7 @@ fio_iops_r_w(){
     fio_iops commands
 }
 
+# 顺序读吞吐量（模拟大文件拷贝、视频流播放）
 fio_iops_r(){
     # 定义关联数组：描述 -> 命令
     local -A commands=(
@@ -1136,6 +1023,8 @@ fio_iops_r(){
     )
     fio_iops commands
 }
+
+# 顺序写吞吐量（模拟大文件写入）
 fio_iops_w(){
     # 定义关联数组：描述 -> 命令
     local -A commands=(
@@ -1143,6 +1032,8 @@ fio_iops_w(){
     )
     fio_iops commands
 }
+
+# 混合随机读写与延迟（模拟复杂真实场景）
 fio_iops_rw(){
     # 定义关联数组：描述 -> 命令
     local -A commands=(
@@ -1217,6 +1108,7 @@ fio_r_w_format(){
     #删除文件
     eval "rm -rf /mnt/data/$JSON_FILE" >/dev/null 2>&1 &
 }
+
 fio_rw_format(){
     local JSON_FILE="$1"
     if [ ! -f "$JSON_FILE" ]; then
@@ -1281,16 +1173,19 @@ fio_rw_format(){
     eval "rm -rf /mnt/data/$JSON_FILE" >/dev/null 2>&1 &
 }
 
-submenu2-4(){ 
+# 硬盘挂载
+mountingdisk(){ 
     while true; do
-        select_menu "$(detect_os) 系统-硬盘挂载 " "传统分区硬盘挂载(新硬盘)" "返回上级菜单"
+        select_menu "$(detect_os) 系统-硬盘挂载" "返回上级菜单" "传统分区硬盘挂载(新硬盘)"
         choice=$?
         case $choice in
-            0) clear;traditional_drive ;;
-            1) return ;;
+            0) return ;;
+            1) clear;traditional_drive ;;
         esac
     done
 }
+
+# 传统分区硬盘挂载(新硬盘)
 traditional_drive(){
 
     # 检查基础命令（增加 parted）
@@ -1305,7 +1200,7 @@ traditional_drive(){
     done
     clear
     # 直接运行 lsblk 获取所有块设备信息
-    echo -e "${PINK}正在扫描设备...${NC}"
+    echo -e "${GREEN}正在扫描设备...${NC}"
     lsblk_output=$(sudo lsblk -o NAME,TYPE,SIZE,MOUNTPOINT,FSTYPE,LABEL -n -l 2>/dev/null)
 
     # 如果 lsblk 没有输出，则退出
@@ -1605,31 +1500,213 @@ traditional_drive(){
                     go_back
                     ;;
             esac
-        fi
+        fi  
+    fi 
+}
+# ===========================================
 
-        
-    fi
 
- 
+
+
+# ===========================================
+# 设置cron
+setup_cron(){
+    while true; do
+        select_menu "设置cron - 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回上级菜单" "查看cron" "添加cron" "删除cron"
+        choice=$?
+        case $choice in
+            0) return ;;
+            1) clear; list_cron; go_back ;;   #查看cron
+            2) clear; add_cron; go_back ;;    #添加cron
+            3) clear; delete_cron; go_back ;; #删除cron
+        esac
+	done
 }
 
+# 查看定时任务
+list_cron() {
+    title "当前系统定时任务:"
+    sudo crontab -l 2>/dev/null || warn "没有设置定时任务"
+}
 
-# ------------- 子菜单功能3 -------------
-
-submenu3() {
+# 添加定时任务
+add_cron(){
+    title "添加定时任务"
+    cat << EOF
+    示例：
+        每天凌晨 3:30     → 分钟=30, 小时=3, 日期=*, 月份=*, 星期=*
+        每月1号 0:0       → 分钟=0, 小时=0, 日期=1, 月份=*, 星期=*
+        每周一 5:15       → 分钟=15, 小时=5, 日期=*, 月份=*, 星期=1
+        每 10 分钟        → 分钟=*/10, 小时=*, 日期=*, 月份=*, 星期=*
+EOF
+    title "输入定时任务执行的时间"
+    # 获取分钟
     while true; do
-        select_menu "网站建站工具" "安装1panel面板" "安装宝塔面板" "安装Nginx和设置反向代理" "返回主菜单"
-        choice=$?
+        read -p "分钟 (0-59, 默认 *) : " minute
+        if validate_cron_nput "$minute" "分钟" 0 59; then
+            minute=${minute:-*}
+            break
+        fi
+    done
 
+    # 获取小时
+    while true; do
+        read -p "小时 (0-23, 默认 *) : " hour
+        if validate_cron_nput "$hour" "小时" 0 23; then
+            hour=${hour:-*}
+            break
+        fi
+    done
+
+    # 获取日期（月份中的第几天）
+    while true; do
+        read -p "日期 (1-31, 默认 *) : " day
+        if validate_cron_nput "$day" "日期" 1 31; then
+            day=${day:-*}
+            break
+        fi
+    done
+
+    # 获取月份
+    while true; do
+        read -p "月份 (1-12, 默认 *) : " month
+        if validate_cron_nput "$month" "月份" 1 12; then
+            month=${month:-*}
+            break
+        fi
+    done
+
+    # 获取星期
+    while true; do
+        read -p "星期 (0-7, 0和7=周日, 默认 *) : " weekday
+        if validate_cron_nput "$weekday" "星期" 0 7; then
+            weekday=${weekday:-*}
+            break
+        fi
+    done
+
+    # 获取要执行的命令
+    while true; do
+        read -p "请输入要定时执行的完整命令（例如：/usr/bin/backup.sh）: " command
+        if [[ -z "$command" ]]; then
+            error "命令不能为空，请重新输入"
+        else
+            break
+        fi
+    done
+    # 生成cron表达式
+    local cron_line="$minute $hour $day $month $weekday $command"
+    
+    # 显示确认信息
+    warn "即将添加以下定时任务："
+    info "    $cron_line"
+    read -p "确认添加吗？(y/N) " confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        success "已取消操作。"
+    else
+        # 备份当前 crontab
+        sudo crontab -l > /tmp/crontab_backup_$$ 2>/dev/null
+        if [[ $? -eq 0 ]]; then
+            success "已备份当前 crontab 到 /tmp/crontab_backup_$$"
+        fi
+
+        # 添加新任务（先去重，避免完全相同的行重复）
+        sudo crontab -l 2>/dev/null | grep -Fx "$cron_line" >/dev/null
+        if [[ $? -eq 0 ]]; then
+            warn "警告：该定时任务已经存在于 crontab 中，不会重复添加。"
+        else
+            (sudo crontab -l 2>/dev/null; echo "$cron_line") | crontab -
+            if [[ $? -eq 0 ]]; then
+                success "成功添加定时任务！"
+                info "当前用户的所有 crontab 任务如下："
+                crontab -l
+            else
+                error "添加失败，请检查权限或 crontab 格式。"
+            fi
+        fi
+    fi
+}
+
+# 删除定时任务
+delete_cron(){
+    # 获取当前定时任务
+    sudo crontab -l > /tmp/current_crontab 2>/dev/null
+    
+    # 检查是否有定时任务
+    if [ ! -s /tmp/current_crontab ]; then
+        warn "没有设置定时任务"
+        sudo rm -f /tmp/current_crontab
+        
+    else
+        # 列出定时任务并编号
+        title "当前定时任务:"
+        echo "------------------"
+        local line_num=1
+        while IFS= read -r line; do
+            if [ -n "$line" ]; then
+                echo "$line_num. $line"
+                line_num=$((line_num + 1))
+            fi
+        done < /tmp/current_crontab
+        echo "------------------"
+        
+        while true; do
+            read -p "请输入要删除的任务编号: " choice
+            if [[ ! $choice =~ ^[0-9]+$ ]]; then
+                error "错误: 请输入有效的数字"
+                sudo rm -f /tmp/current_crontab
+                continue
+            fi
+            local total_lines=$(wc -l < /tmp/current_crontab)
+            if [ $choice -lt 1 ] || [ $choice -gt $total_lines ]; then
+                error "错误: 无效的任务编号"
+                sudo rm -f /tmp/current_crontab
+                continue
+            fi
+            # 删除选中的任务
+            local line_to_delete=$choice
+            sudo awk -v line="$line_to_delete" 'NR != line' /tmp/current_crontab > /tmp/new_crontab
+
+            sudo crontab /tmp/new_crontab
+            if [ $? -eq 0 ]; then
+                success "成功: 定时任务已删除"
+            else
+                error "错误: 定时任务删除失败"
+            fi
+            break
+        done
+        sudo rm -f /tmp/current_crontab /tmp/new_crontab
+    fi
+}
+# ===========================================
+
+
+
+
+
+
+
+# ------------- 子菜单功能2 -------------
+
+submenu2() {
+    while true; do
+        select_menu "子菜单功能2(系统面板管理工具)- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回主菜单" "安装1panel面板" "安装宝塔面板" "安装Nginx和设置反向代理" "Prometheus（普罗米修斯）面板" "Neza面板" "Komari面板" "Beszel面板"
+        choice=$?
         case $choice in
-            0) clear; submenu3-1 ;;
-            1) clear; submenu3-2 ;;
-            2) clear; submenu3-3 ;;
-            3) return ;;
+            0) return ;;
+            1) clear;1panel_panel ;;    #安装1panel面板
+            2) clear;bt_panel ;;        #安装宝塔面板
+            3) clear;nginx ;;           #安装Nginx和设置反向代
+            4) clear;prometheus_panel;; #Prometheus（普罗米修斯）面板
+            5) clear;neza_panel ;;      #Neza面板
+            6) clear;komari_panel ;;    #Komari面板
+            7) clear;beszel_panel ;;    #Beszel面板
         esac
     done
 }
-submenu3-1(){
+
+# 安装1panel面板
+1panel_panel(){
     local onep_status
     while true; do
         check_service "1panel-core"
@@ -1638,23 +1715,24 @@ submenu3-1(){
             1) onep_status="服务存在但未运行" ;;
             2) onep_status="未安装" ;;
         esac
-        select_menu "1panel面板-状态：$onep_status" "安装1panel面板" "重启1panel面板" "停止1panel面板" "查看1panel面板当前状态" "修改1panel面板端口号" "修改1panel面板登录密码" "修改1panel面板登录账号" "卸载1panel面板" "返回上级菜单"
+        select_menu "1panel面板-状态：$onep_status" "返回上级菜单" "安装1panel面板" "重启1panel面板" "停止1panel面板" "查看1panel面板当前状态" "修改1panel面板端口号" "修改1panel面板登录密码" "修改1panel面板登录账号" "卸载1panel面板"
         choice=$?
         case $choice in
-            0) clear; eval 'bash -c "$(curl -sSL https://resource.fit2cloud.com/1panel/package/v2/quick_start.sh)"';go_back ;;
-            1) clear;if check_cmd 1pctl ; then sudo 1pctl restart;else error "1panel面板未安装";fi ;go_back ;;
-            2) clear;if check_cmd 1pctl ; then sudo 1pctl stop;else error "1panel面板未安装";fi ;go_back ;;
-            3) clear;if check_cmd 1pctl ; then sudo 1pctl status;else error "1panel面板未安装";fi ;go_back ;;
-            4) clear;if check_cmd 1pctl ; then sudo 1pctl update port;else error "1panel面板未安装";fi ;go_back ;;
-            5) clear;if check_cmd 1pctl ; then sudo 1pctl update password;else error "1panel面板未安装";fi ;go_back ;;
-            6) clear;if check_cmd 1pctl ; then sudo 1pctl update username;else error "1panel面板未安装";fi ;go_back ;;
-            7) clear;if check_cmd 1pctl ; then sudo 1pctl uninstall;else error "1panel面板未安装";fi ;go_back;;
-            8) return ;;
+            0) return ;;
+            1) clear; eval 'bash -c "$(curl -sSL https://resource.1panel.pro/v2/quick_start.sh)"';go_back ;;
+            2) clear;if check_cmd 1pctl ; then sudo 1pctl restart;        else error "1panel面板未安装";fi ;go_back ;;
+            3) clear;if check_cmd 1pctl ; then sudo 1pctl stop;           else error "1panel面板未安装";fi ;go_back ;;
+            4) clear;if check_cmd 1pctl ; then sudo 1pctl status;         else error "1panel面板未安装";fi ;go_back ;;
+            5) clear;if check_cmd 1pctl ; then sudo 1pctl update port;    else error "1panel面板未安装";fi ;go_back ;;
+            6) clear;if check_cmd 1pctl ; then sudo 1pctl update password;else error "1panel面板未安装";fi ;go_back ;;
+            7) clear;if check_cmd 1pctl ; then sudo 1pctl update username;else error "1panel面板未安装";fi ;go_back ;;
+            8) clear;if check_cmd 1pctl ; then sudo 1pctl uninstall;      else error "1panel面板未安装";fi ;go_back ;;
         esac
     done
 }
-submenu3-2(){
 
+# 安装宝塔面板
+bt_panel(){
     local bt_status
     while true; do
         # 判断宝塔面板是否安装
@@ -1664,23 +1742,26 @@ submenu3-2(){
             1) bt_status="服务存在但未运行" ;;
             2) bt_status="未安装" ;;
         esac
-        select_menu "宝塔面板-状态：$bt_status" "安装宝塔面板" "重启宝塔面板" "停止宝塔面板" "查看面板访问的信息" "修改宝塔面板端口号" "修改宝塔面板登录密码" "修改宝塔面板登录账号" "卸载宝塔面板" "返回上级菜单"
+        select_menu "宝塔面板-状态：$bt_status" "返回上级菜单" "安装宝塔面板" "重启宝塔面板" "停止宝塔面板" "查看面板访问的信息" "修改宝塔面板端口号" "修改宝塔面板登录密码" "修改宝塔面板登录账号" "卸载宝塔面板"
         choice=$?
         case $choice in
-            0) clear; eval "if [ -f /usr/bin/curl ];then curl -sSO https://download.bt.cn/install/install_panel.sh;else wget -O install_panel.sh https://download.bt.cn/install/install_panel.sh;fi;bash install_panel.sh ed8484bec";go_back ;;
-            1) clear;if check_cmd bt ; then sudo bt 1;else error "宝塔面板未安装";fi ; go_back ;;
-            2) clear;if check_cmd bt ; then sudo bt 2;else error "宝塔面板未安装";fi ; go_back ;;
-            3) clear;if check_cmd bt ; then sudo bt 14;else error "宝塔面板未安装";fi ; go_back ;;
-            4) clear;if check_cmd bt ; then sudo bt 8;else error "宝塔面板未安装";fi ; go_back ;;
-            5) clear;if check_cmd bt ; then sudo bt 5;else error "宝塔面板未安装";fi ; go_back ;;
-            6) clear;if check_cmd bt ; then sudo bt 6;else error "宝塔面板未安装";fi ; go_back ;;
-            7) clear;if check_cmd bt ; then sudo wget http://download.bt.cn/install/bt-uninstall.sh;clear;sudo bash bt-uninstall.sh;rm -rf bt-uninstall.sh;else error "宝塔面板未安装";fi ; go_back ;;
-            8) return ;;
+            0) return ;;
+            1) clear; eval "if [ -f /usr/bin/curl ];then curl -sSO https://download.bt.cn/install/install_panel.sh;else wget -O install_panel.sh https://download.bt.cn/install/install_panel.sh;fi;bash install_panel.sh ed8484bec";go_back ;;
+            2) clear;if check_cmd bt ; then sudo bt 1; else error "宝塔面板未安装";fi ; go_back ;;
+            3) clear;if check_cmd bt ; then sudo bt 2; else error "宝塔面板未安装";fi ; go_back ;;
+            4) clear;if check_cmd bt ; then sudo bt 14;else error "宝塔面板未安装";fi ; go_back ;;
+            5) clear;if check_cmd bt ; then sudo bt 8; else error "宝塔面板未安装";fi ; go_back ;;
+            6) clear;if check_cmd bt ; then sudo bt 5; else error "宝塔面板未安装";fi ; go_back ;;
+            7) clear;if check_cmd bt ; then sudo bt 6; else error "宝塔面板未安装";fi ; go_back ;;
+            8) clear;if check_cmd bt ; then sudo wget http://download.bt.cn/install/bt-uninstall.sh;clear;sudo bash bt-uninstall.sh;rm -rf bt-uninstall.sh;else error "宝塔面板未安装";fi ; go_back ;;
         esac
     done
 }
 
-submenu3-3(){
+
+# ===========================================
+# 安装Nginx和设置反向代理
+nginx(){
     local nginx_status
     while true; do
     # 判断Nginx是否安装
@@ -1690,30 +1771,30 @@ submenu3-3(){
             1) nginx_status="服务存在但未运行" ;;
             2) nginx_status="未安装" ;;
         esac
-        select_menu "Nginx反向代理/负载均衡 -状态：$nginx_status" "安装nginx（apt、yum）" "重启nginx" "停止nginx" "查看nginx状态" "重载nginx配置文件" "设置nginx开机自启" "反向代理内网服务" "卸载nginx" "返回上级菜单"
+        select_menu "Nginx反向代理/负载均衡 -状态：$nginx_status" "返回上级菜单" "安装nginx（apt、yum）" "重启nginx" "停止nginx" "查看nginx状态" "重载nginx配置文件" "设置nginx开机自启" "反向代理内网服务" "卸载nginx"
         choice=$?
         case $choice in
-            0) clear; local -A MY_PKG_MAP=(["nginx"]="nginx" ["nginx-common"]="nginx-common" ["nginx-core"]="nginx-core");check_and_install_tools MY_PKG_MAP "nginx" "nginx-common" "nginx-core";go_back  ;;
-            1) clear;if check_cmd nginx ; then title "重启nginx服务" ; sudo systemctl restart nginx;else error "nginx未安装";fi ; go_back ;;
-            2) clear;if check_cmd nginx ; then title "停止nginx服务" ; sudo systemctl stop nginx;if pgrep -f "nginx" ; then sudo nginx -s stop ; fi;else error "nginx未安装";fi ; go_back ;;
-            3) clear;if check_cmd nginx ; then title "查看nginx服务状态" ; sudo systemctl status nginx;else error "nginx未安装";fi ; go_back ;;
-            4) clear;if check_cmd nginx ; then title "重载nginx服务配置文件" ; sudo systemctl reload nginx;else error "nginx未安装";fi ; go_back ;;
-            5) clear;if check_cmd nginx ; then title "设置nginx服务开机自启动" ; sudo systemctl enable nginx;else error "nginx未安装";fi ;go_back ;;
-            6) clear;if check_cmd nginx ; then nginx_reverse; else error "nginx未安装";fi ;;
-            7) clear;if check_cmd nginx ; then title "停止nginx服务";sudo systemctl stop nginx|| true;if pgrep -f "nginx" ; then sudo nginx -s stop ; fi;print_info "卸载nginx";sudo apt purge nginx nginx-common nginx-core -y;print_info "移除nginx依赖";sudo apt autoremove -y; print_info "删除残留的配置和数据";sudo rm -rf /etc/nginx;sudo rm -rf /var/www/html ;else error "nginx未安装";fi ; go_back;;
-            8) return ;;
+            0) return ;;
+            1) clear; local -A MY_PKG_MAP=(["nginx"]="nginx" ["nginx-common"]="nginx-common" ["nginx-core"]="nginx-core");check_and_install_tools MY_PKG_MAP "nginx" "nginx-common" "nginx-core";go_back  ;;
+            2) clear;if check_cmd nginx ; then title "重启nginx服务" ; sudo systemctl restart nginx;else error "nginx未安装";fi ; go_back ;;
+            3) clear;if check_cmd nginx ; then title "停止nginx服务" ; sudo systemctl stop nginx;if pgrep -f "nginx" ; then sudo nginx -s stop ; fi;else error "nginx未安装";fi ; go_back ;;
+            4) clear;if check_cmd nginx ; then title "查看nginx服务状态" ; sudo systemctl status nginx;else error "nginx未安装";fi ; go_back ;;
+            5) clear;if check_cmd nginx ; then title "重载nginx服务配置文件" ; sudo systemctl reload nginx;else error "nginx未安装";fi ; go_back ;;
+            6) clear;if check_cmd nginx ; then title "设置nginx服务开机自启动" ; sudo systemctl enable nginx;else error "nginx未安装";fi ;go_back ;;
+            7) clear;if check_cmd nginx ; then nginx_reverse; else error "nginx未安装";fi ;;
+            8) clear;if check_cmd nginx ; then title "停止nginx服务";sudo systemctl stop nginx|| true;if pgrep -f "nginx" ; then sudo nginx -s stop ; fi;info "卸载nginx";sudo apt purge nginx nginx-common nginx-core -y;info "移除nginx依赖";sudo apt autoremove -y; info "删除残留的配置和数据";sudo rm -rf /etc/nginx;sudo rm -rf /var/www/html ;else error "nginx未安装";fi ; go_back;;
         esac
     done
 }
 nginx_reverse(){
     while true; do
-        select_menu "反向代理内网服务" "反向代理单服务(upstream)" "反向代理多个服务（虚拟主机）" "删除反向代理服务" "返回上级菜单"
+        select_menu "反向代理内网服务" "返回上级菜单" "反向代理单服务(upstream)" "反向代理多个服务（虚拟主机）" "删除反向代理服务"
         choice=$?
         case $choice in
-            0) clear;nginx_reverse_input; go_back;;
-            1) clear;more_nginx_reverse;go_back  ;;
-            2) clear;del_nginx_reverse;go_back  ;;
-            3) break ;;
+            0) break ;;
+            1) clear;nginx_reverse_input; go_back;;
+            2) clear;more_nginx_reverse;  go_back;;
+            3) clear;del_nginx_reverse;   go_back;;
         esac
     done
 }
@@ -2084,9 +2165,6 @@ del_nginx_reverse(){
             error "删除失败: $file"
         fi
     done
-
-
-
 }
 more_nginx_reverse(){
     while true; do
@@ -2109,58 +2187,35 @@ more_nginx_reverse(){
         done
     done
 }
+# ===========================================
 
 
 
 
-
-
-
-
-
-
-
-
-# ------------- 子菜单功能4 -------------
-submenu4() {
-    while true; do
-        select_menu "安装系统面板管理工具" "Prometheus（普罗米修斯）面板" "哪吒面板（一键安装脚步）" "Komari面板" "Beszel面板" "返回主菜单"
-        choice=$?
-
-        case $choice in
-            0) clear;prometheus_panel;;
-            1) clear;neza_panel ;;
-            2) clear;Komari_panel ;;
-            3) clear;Beszel_panel ;;
-            4) return ;;
-        esac
-    done
-}
-
+# ===========================================
 prometheus_panel(){
     while true; do
         local prometheus_status=$(check_docker "prometheus")
         echo ""
-        select_menu "prometheus（普罗米修斯）面板- 容器状态：$prometheus_status" "安装Prometheus（普罗米修斯）+grafana 面板" "卸载prometheus（普罗米修斯）" "安装node_exporter(上线监测)" "卸载node_exporter" "返回上级菜单"
+        select_menu "prometheus（普罗米修斯）面板- 容器状态：$prometheus_status" "返回上级菜单" "安装Prometheus（普罗米修斯）+grafana 面板" "卸载prometheus（普罗米修斯）" "安装node_exporter(上线监测)" "卸载node_exporter"
         choice=$?
         case $choice in
-            0) clear;prometheus_install_docker;go_back;;
-            1) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'prometheus'; then prometheus_uninstall_docker;else warn "prometheus未安装运行" ;fi ;go_back ;;
-            2) clear;node_exporter_install;go_back ;;
-            3) clear;if [ -f /usr/local/bin/node_exporter ];then node_exporter_uninstall;else warn "node_exporter未安装运行";fi ;go_back ;;
-            4) return ;;
+            0) return ;;
+            1) clear;prometheus_install_docker;go_back;;
+            2) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'prometheus'; then prometheus_uninstall_docker;else warn "prometheus未安装运行" ;fi ;go_back ;;
+            3) clear;node_exporter_install;go_back ;;
+            4) clear;if [ -f /usr/local/bin/node_exporter ];then node_exporter_uninstall;else warn "node_exporter未安装运行";fi ;go_back ;;
         esac
     done
 }
 prometheus_install_docker(){
-    
     docker_install_sh
     if [ $? -eq 0 ]; then
         clear
         #配置参数
         local NETWORK_NAME="monitoring"
         #数据持久化存储
-        BASE_DIR="/tmp/prometheus-stack"
+        BASE_DIR="~/prometheus-stack"
         mkdir -p "$BASE_DIR"/{prometheus,rules,alertmanager,blackbox,grafana}
         mkdir -p "$BASE_DIR/prometheus/targets"
         success "工作目录: $BASE_DIR"
@@ -2337,7 +2392,6 @@ EOF
         -e GF_SECURITY_ADMIN_PASSWORD=admin \
         -v grafana-data:/var/lib/grafana \
         grafana/grafana-oss:latest
-
         
         title "Docker 部署完成！"
         success "Prometheus UI:      http://prometheus:9090(内部访问)"
@@ -2352,10 +2406,8 @@ EOF
         warn "查看容器状态: docker ps | grep -E 'prometheus|alertmanager|node-exporter|blackbox|grafana'"
         warn "查看日志: docker logs -f <容器名>"
         warn "为了安全，可以使用 宿主机防火墙 和 反向代理 等技术层面来限制 IP 访问。"
-
     else
         error "Docker安装失败。"
-        
     fi
 }
 
@@ -2366,7 +2418,7 @@ prometheus_uninstall_docker(){
         NETWORK_NAME="monitoring"
         CONTAINERS=("prometheus" "alertmanager" "node-exporter" "blackbox-exporter" "grafana")
         VOLUMES=("prometheus-data" "alertmanager-data" "grafana-data")
-        DEFAULT_BASE_DIR="/tmp/prometheus-stack"
+        DEFAULT_BASE_DIR="~/prometheus-stack"
 
         title "停止并删除容器..."
         for c in "${CONTAINERS[@]}"; do
@@ -2405,19 +2457,13 @@ prometheus_uninstall_docker(){
         else
             warn "配置目录不存在: $BASE_DIR"
         fi
-
         success "✅ 卸载完成！"
-
-
-
     else
         error "Docker安装失败。"
-        
     fi
 }
 
 node_exporter_install(){
-
     warn "打开浏览器访问https://github.com/prometheus/node_exporter/releases/"
     # 输入下载链接
     while true; do
@@ -2482,8 +2528,6 @@ EOF
 
     success "Node Exporter 安装完成并已启动。"
     sudo systemctl status node_exporter --no-pager
-
-
 }
 
 node_exporter_uninstall(){
@@ -2496,7 +2540,6 @@ node_exporter_uninstall(){
     if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
         echo "卸载已取消。"
         return
-
     fi
     sudo systemctl stop node_exporter
     SERVICE_NAME="node_exporter"
@@ -2531,9 +2574,11 @@ node_exporter_uninstall(){
 
     success "Node Exporter 卸载完成。"
 }
+# ===========================================
 
 
 
+# ===========================================
 neza_panel(){
     local nezha_status
     while true; do
@@ -2543,20 +2588,22 @@ neza_panel(){
             1) nezha_status="服务存在但未运行" ;;
             2) nezha_status=$(check_docker "nezha-dashboard") ;;
         esac
-        select_menu "安装哪吒面板（一键安装脚步）状态：$nezha_status" "安装/卸载哪吒面板（国外）" "安装/卸载哪吒面板（国内）" "卸载哪吒Agent" "返回上级菜单"
+        select_menu "安装哪吒面板（一键安装脚步）状态：$nezha_status" "返回上级菜单" "安装/卸载哪吒面板（国外）" "安装/卸载哪吒面板（国内）" "卸载哪吒面板"
         choice=$?
-
         case $choice in
-            0) clear;sudo mkdir -p /tmp/nezha/;sudo curl -L https://raw.githubusercontent.com/nezhahq/scripts/refs/heads/main/install.sh -o /tmp/nezha/nezha.sh && chmod +x /tmp/nezha/nezha.sh && sudo /tmp/nezha/nezha.sh;go_back;;
-            1) clear;sudo mkdir -p /tmp/nezha/;sudo curl -L https://gitee.com/naibahq/scripts/raw/main/install.sh -o /tmp/nezha/nezha.sh && chmod +x /tmp/nezha/nezha.sh && sudo CN=true /tmp/nezha/nezha.sh;go_back ;;
-            2) clear;if check_service "nezha-agent";then sudo mkdir -p /tmp/nezha/;sudo curl -L https://raw.githubusercontent.com/nezhahq/scripts/main/agent/install.sh -o /tmp/nezha/agent.sh && sudo chmod +x /tmp/nezha/agent.sh && sudo bash /tmp/nezha/agent.sh uninstall;sudo rm -rf /tmp/nezha/agent.sh; else error "哪吒Agent未安装";fi ;go_back ;;
-            3) return ;;
+            0) return ;;
+            1) clear;sudo mkdir -p ~/nezha/;sudo curl -L https://raw.githubusercontent.com/nezhahq/scripts/refs/heads/main/install.sh -o ~/nezha/nezha.sh && chmod +x ~/nezha/nezha.sh && sudo ~/nezha/nezha.sh;go_back;;
+            2) clear;sudo mkdir -p ~/nezha/;sudo curl -L https://gitee.com/naibahq/scripts/raw/main/install.sh -o ~/nezha/nezha.sh && chmod +x ~/nezha/nezha.sh && sudo CN=true ~/nezha/nezha.sh;go_back ;;
+            3) clear;if check_service "nezha-agent";then sudo mkdir -p ~/nezha/;sudo curl -L https://raw.githubusercontent.com/nezhahq/scripts/main/agent/install.sh -o ~/nezha/agent.sh && sudo chmod +x ~/nezha/agent.sh && sudo bash ~/nezha/agent.sh uninstall;sudo rm -rf ~/nezha/agent.sh; else error "哪吒面板未安装";fi ;go_back ;;
         esac
     done
-    
 }
+# ===========================================
 
-Komari_panel(){
+
+
+# ===========================================
+komari_panel(){
     local komari_status
     while true; do
         check_service "komari"
@@ -2565,45 +2612,46 @@ Komari_panel(){
             1) komari_status="服务存在但未运行" ;;
             2) komari_status=$(check_docker "komari") ;;
         esac
-        select_menu "Komari面板安装指南 状态：$komari_status" "安装Komari面板（docker)" "卸载Komari面板（docker)" "Komari面板(安装卸载一键脚本)" "卸载komari面板的Agent" "返回上级菜单"
+        select_menu "Komari面板安装指南 状态：$komari_status" "返回上级菜单" "安装Komari面板（docker)" "卸载Komari面板（docker)" "安装Komari面板(sh)" "卸载komari"
         choice=$?
         case $choice in
-            0) clear;Komari_install_docker;go_back ;;
-            1) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'komari'; then sudo docker stop komari;sudo docker rm komari;sudo rm -rf /tmp/komari/data;success "删除komari容器成功";else warn "komari未安装运行" ;fi ;go_back;;
-            2) clear;curl -fsSL https://raw.githubusercontent.com/komari-monitor/komari/main/install-komari.sh -o install-komari.sh;chmod +x install-komari.sh;sudo ./install-komari.sh;go_back ;;
-            3) clear; check_service "komari-agent"; if [[ $? -ne 2 ]]; then sudo systemctl stop komari-agent; sudo systemctl disable komari-agent; sudo rm /etc/systemd/system/komari-agent.service; sudo systemctl daemon-reload; sudo rm -rf /opt/komari; else warn "komari-agent未安装运行"; fi; go_back;;
-            4) return;;
+            0) return;;
+            1) clear;komari_install_docker;go_back ;;
+            2) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'komari'; then sudo docker stop komari;sudo docker rm komari;sudo rm -rf ~/komari/data;success "删除komari面板成功";else warn "komari未安装运行" ;fi ;go_back;;
+            3) clear;curl -fsSL https://raw.githubusercontent.com/komari-monitor/komari/main/install-komari.sh -o install-komari.sh;chmod +x install-komari.sh;sudo ./install-komari.sh;go_back ;;
+            4) clear; check_service "komari-agent"; if [[ $? -ne 2 ]]; then sudo systemctl stop komari-agent; sudo systemctl disable komari-agent; sudo rm /etc/systemd/system/komari-agent.service; sudo systemctl daemon-reload; sudo rm -rf /opt/komari; else warn "komari-agent未安装运行"; fi; go_back;;
+
         esac
     done
 }
-
-
-
-Komari_install_docker(){
+komari_install_docker(){
     docker_install_sh
     if [ $? -eq 0 ]; then
         # 获取监听端口
         title "进行Komari面板安装（docker)"
         validate_port "25774"
-        sudo mkdir -p "/tmp/komari/data"
+        sudo mkdir -p "~/komari/data"
         sudo docker run -d \
         -p $LISTEN_PORT:25774 \
-        -v /tmp/komari/data:/app/data \
+        -v ~/komari/data:/app/data \
         --name komari \
         --restart=always \
         ghcr.io/komari-monitor/komari:latest
         
-        success   "启动komari容器成功"
+        success "启动komari容器成功"
         title "komari面板访问信息"
         success "打开网址http://$(get_public_ip):$LISTEN_PORT 并登录控制面板。登录凭据如下："
         sudo docker logs komari 2>&1 | grep "Default admin account created" | sed -n 's/.*Username: \(.*\) , Password: \(.*\)/Username: \1\nPassword: \2/p'
     else
         error "Docker安装失败。"
-        
     fi
 }
+# ===========================================
 
-Beszel_panel(){
+
+
+# ===========================================
+beszel_panel(){
     local beszel_status
     while true; do
         check_service "beszel-hub"
@@ -2612,45 +2660,41 @@ Beszel_panel(){
             1) beszel_status="服务存在但未运行" ;;
             2) beszel_status=$(check_docker "beszel") ;;
         esac
-        select_menu "Beszel面板安装指南 状态：$beszel_status" "安装Beszel面板（docker)" "卸载Beszel面板（docker)" "Beszel面板(安装一键脚本)" "卸载Beszel面板的" "卸载Beszel面板的Agent" "返回上级菜单"
+        select_menu "Beszel面板安装指南 状态：$beszel_status" "返回上级菜单" "安装Beszel面板（docker)" "卸载Beszel面板（docker)" "安装Beszel面板(sh)" "卸载Beszel面板" "卸载Beszel-Agent"
         choice=$?
-
         case $choice in
-            0) clear;Beszel_install_docker;go_back ;;
-            1) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'beszel'; then sudo docker stop beszel;sudo docker rm beszel;sudo rm -rf /tmp/beszel/beszel_data;success "删除Beszel容器成功";else warn "Beszel未安装运行" ;fi ;go_back;;
-            2) clear;Beszel_install_sh;go_back ;;
-            3) clear;check_service "beszel-hub"; if [[ $? -ne 2 ]]; then sudo mkdir -p /tmp/Beszel/;sudo curl -sL https://get.beszel.dev/hub -o "/tmp/Beszel/install-hub.sh" && chmod +x "/tmp/Beszel/install-hub.sh" &&sudo bash "/tmp/Beszel/install-hub.sh" -u;success "删除Beszel成功"; else warn "Beszel未安装运行"; fi; go_back;;
-            4) clear; check_service "beszel-agent"; if [[ $? -ne 2 ]]; then sudo systemctl stop beszel-agent; sudo systemctl disable beszel-agent; sudo rm /etc/systemd/system/beszel-agent.service; sudo systemctl daemon-reload; sudo rm -rf /tmp/install-agent.sh; else warn "komari-agent未安装运行"; fi; go_back;;
-            5) return ;;
+            0) return ;;
+            1) clear;beszel_install_docker;go_back ;;
+            2) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'beszel'; then sudo docker stop beszel;sudo docker rm beszel;sudo rm -rf ~/beszel/beszel_data;success "删除Beszel容器成功";else warn "Beszel未安装运行" ;fi ;go_back;;
+            3) clear;beszel_install_sh;go_back ;;
+            4) clear;check_service "beszel-hub";   if [[ $? -ne 2 ]]; then sudo mkdir -p ~/beszel/;sudo curl -sL https://get.beszel.dev/hub -o "~/beszel/install-hub.sh" && chmod +x "~/beszel/install-hub.sh" &&sudo bash "~/beszel/install-hub.sh" -u;success "删除Beszel成功"; else warn "Beszel未安装运行"; fi; go_back;;
+            5) clear;check_service "beszel-agent"; if [[ $? -ne 2 ]]; then sudo systemctl stop beszel-agent; sudo systemctl disable beszel-agent; sudo rm /etc/systemd/system/beszel-agent.service; sudo systemctl daemon-reload; sudo rm -rf ~/install-agent.sh; else warn "beszel-agent未安装运行"; fi; go_back;;
         esac
     done
 }
-
-Beszel_install_sh(){
+beszel_install_sh(){
     title "Beszel面板(安装一键脚本)"
     validate_port "8090"
     read -p "是否启用每日自动更新？(y/n，默认n): " auto_update
     if [[ "$change_port" =~ ^[Yy]$ ]]; then
-        sudo mkdir -p /tmp/Beszel/;sudo curl -sL https://get.beszel.dev/hub -o /tmp/Beszel/install-hub.sh && chmod +x /tmp/Beszel/install-hub.sh && sudo bash /tmp/Beszel/install-hub.sh -p $LISTEN_PORT --auto-update
+        sudo mkdir -p ~/beszel/;sudo curl -sL https://get.beszel.dev/hub -o ~/beszel/install-hub.sh && chmod +x ~/beszel/install-hub.sh && sudo bash ~/beszel/install-hub.sh -p $LISTEN_PORT --auto-update
     else
-        sudo mkdir -p /tmp/Beszel/;sudo curl -sL https://get.beszel.dev/hub -o /tmp/Beszel/install-hub.sh && chmod +x /tmp/Beszel/install-hub.sh && sudo bash /tmp/Beszel/install-hub.sh -p $LISTEN_PORT
+        sudo mkdir -p ~/beszel/;sudo curl -sL https://get.beszel.dev/hub -o ~/beszel/install-hub.sh && chmod +x ~/beszel/install-hub.sh && sudo bash ~/beszel/install-hub.sh -p $LISTEN_PORT
     fi
-    
     title "Beszel面板访问信息"
     success "打开网址http://$(get_public_ip):$LISTEN_PORT 进行登录凭据的创建。"
     warn "卸载agent面板，在安装agent的参数后面加入-u的参数进行卸载。"
 }
-Beszel_install_docker(){
+beszel_install_docker(){
     docker_install_sh
     if [ $? -eq 0 ]; then
         title "进行Beszel面板安装（docker)"
-        
         validate_port "8090"
-        sudo mkdir -p "/tmp/beszel/beszel_data"
+        sudo mkdir -p "~/beszel/beszel_data"
         sudo docker run -d \
         --name beszel \
         --restart=unless-stopped \
-        --volume /tmp/beszel/beszel_data:/beszel_data \
+        --volume ~/beszel/beszel_data:/beszel_data \
         -e APP_URL=http://$(get_public_ip):$LISTEN_PORT \
         -p $LISTEN_PORT:8090 \
         henrygd/beszel
@@ -2660,27 +2704,29 @@ Beszel_install_docker(){
         success "打开网址http://$(get_public_ip):$LISTEN_PORT 进行登录凭据的创建。"
     else
         error "Docker安装失败,请手动安装"
-        
     fi
 }
+# ===========================================
 
 
 
+# ------------- 子菜单功能3 -------------
 
-# ------------- 子菜单功能5 -------------
-
-submenu5() {
+submenu3() {
     while true; do
-        select_menu "VPN搭建工具" "安装3x-ui面板" "安装winguard异地组网" "返回主菜单"
+        select_menu "子菜单功能3(VPN搭建工具)- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回主菜单" "安装3x-ui面板" "安装winguard异地组网"
         choice=$?
         case $choice in
-            0) clear;3xui-panel;;
-            1) clear;wireguard_panel ;;
-            2) return ;;
+            0) return ;;
+            1) clear;3xui-panel;;
+            2) clear;wireguard_panel ;;
         esac
     done
 }
 
+
+# ===========================================
+# 安装3x-ui面板
 3xui-panel(){
     local xui_status
     while true; do
@@ -2691,14 +2737,14 @@ submenu5() {
             2) xui_status=$(check_docker "3xui_app") ;;
         esac
         
-        select_menu "3x-ui面板安装 状态：$xui_status" "安装3x-ui面板(docker)" "卸载3x-ui面板(docker)" "安装3x-ui面板(sh脚步)" "卸载3x-ui面板(sh脚步)"  "返回上级菜单"
+        select_menu "3x-ui面板安装 状态：$xui_status" "返回上级菜单" "安装3x-ui面板(docker)" "卸载3x-ui面板(docker)" "安装3x-ui面板(sh)" "卸载3x-ui面板(sh)"
         choice=$?
         case $choice in
-            0) clear;3xui_docker_install;go_back;;
-            1) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx '3xui_app'; then sudo docker compose -f "/tmp/panel/3xui_compose.yml" down;sudo docker system prune -a;sudo rm -rf "/tmp/panel";success "删除3x-ui容器成功";else warn "3x-ui未安装运行" ;fi ;go_back;;
-            2) clear;curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh | sudo bash ;go_back;;
-            3) clear;check_service "x-ui" ; if [[ $? -ne 2 ]]; then sudo x-ui uninstall ; else warn "3x-ui未安装运行"; fi; go_back;;
-            4) return ;;
+            0) return ;;
+            1) clear;3xui_docker_install;go_back;;
+            2) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx '3xui_app'; then sudo docker compose -f "~/3xui-panel/3xui_compose.yml" down;sudo docker system prune -a;sudo rm -rf "~/3xui-panel";success "删除3x-ui容器成功";else warn "3x-ui未安装运行" ;fi ;go_back;;
+            3) clear;curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh | sudo bash ;go_back;;
+            4) clear;check_service "x-ui" ; if [[ $? -ne 2 ]]; then sudo x-ui uninstall ; else warn "3x-ui未安装运行"; fi; go_back;;
         esac
     done
 }
@@ -2706,16 +2752,16 @@ submenu5() {
 3xui_docker_install(){
     docker_install_sh
     if [ $? -eq 0 ]; then
-        sudo mkdir -p "/tmp/panel"
-        sudo tee "/tmp/panel/3xui_compose.yml" > /dev/null << 'EOF'
+        sudo mkdir -p "~/3xui-panel"
+        sudo tee "~/3xui-panel/3xui_compose.yml" > /dev/null << 'EOF'
 services:
   3xui:
     image: ghcr.io/mhsanaei/3x-ui:latest
     container_name: 3xui_app
     # hostname: yourhostname <- optional
     volumes:
-      - /tmp/panel/db/:/etc/x-ui/
-      - /tmp/panel/cert/:/root/cert/
+      - ~/3xui-panel/db/:/etc/x-ui/
+      - ~/3xui-panel/cert/:/root/cert/
     environment:
       XRAY_VMESS_AEAD_FORCED: "false"
       XUI_ENABLE_FAIL2BAN: "true"
@@ -2724,7 +2770,7 @@ services:
     restart: unless-stopped
 EOF
         success "创建docker_compose文件完成"
-        sudo docker compose -f "/tmp/panel/3xui_compose.yml" up -d
+        sudo docker compose -f "~/3xui-panel/3xui_compose.yml" up -d
         get_public_ip
         success   "启动容器成功"
         title "3xui面板访问信息"
@@ -2734,10 +2780,14 @@ EOF
         warn "登录后，立即在面板设置中更改管理员凭据（Panel Settings > Authentication）"
     else
         error "Docker安装失败。"
-        
     fi
-
 }
+# ===========================================
+
+
+
+# ===========================================
+# 安装winguard异地组网
 wireguard_panel(){
     local wg_status
     while true; do
@@ -2750,12 +2800,12 @@ wireguard_panel(){
         select_menu "wireguard面板安装 状态：$wg_status" "安装wireguard的WebUI面板(docker)" "卸载wireguard的WebUI面板(docker)"  "安装wireguard的面板(CLI)" "新增wireguard客户端(CLI)" "卸载wireguard的面板(CLI)"  "返回主菜单"
         choice=$?
         case $choice in
-            0) clear;wireguard_docker_install;go_back;;
-            1) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'wg-easy'; then sudo docker compose -f "/tmp/wg-easy/docker-compose.yml" down;sudo docker system prune -a;sudo rm -rf "/tmp/wg-easy";success "删除wg-easy容器成功";else warn "wg-easy未安装运行" ;fi ;go_back;;
-            2) clear;wireguard_install;go_back;;
-            3) clear;check_service "wg-quick@" ; if [[ $? -ne 2 ]]; then add_wireguard_clients ; else warn "wireguard未安装运行"; fi ; go_back;;
-            4) clear;check_service "wg-quick@" ; if [[ $? -ne 2 ]]; then wireguard_uninstall ; else warn "wireguard未安装运行"; fi ; go_back;;
-            5) return ;;
+            0) return ;;
+            1) clear;wireguard_docker_install;go_back;;
+            2) clear;if sudo docker ps -a --format '{{.Names}}' | grep -qx 'wg-easy'; then sudo docker compose -f "~/wg-easy/docker-compose.yml" down;sudo docker system prune -a;sudo rm -rf "~/wg-easy";success "删除wg-easy容器成功";else warn "wg-easy未安装运行" ;fi ;go_back;;
+            3) clear;wireguard_install;go_back;;
+            4) clear;check_service "wg-quick@" ; if [[ $? -ne 2 ]]; then add_wireguard_clients ; else warn "wireguard未安装运行"; fi ; go_back;;
+            5) clear;check_service "wg-quick@" ; if [[ $? -ne 2 ]]; then wireguard_uninstall ; else warn "wireguard未安装运行"; fi ; go_back;;
         esac
     done
 }
@@ -2763,10 +2813,10 @@ wireguard_panel(){
 wireguard_docker_install(){
     docker_install_sh
     if [ $? -eq 0 ]; then
-        sudo mkdir -p "/tmp/wg-easy"
-        sudo curl -o "/tmp/wg-easy/docker-compose.yml" https://raw.githubusercontent.com/wg-easy/wg-easy/master/docker-compose.yml
+        sudo mkdir -p "~/wg-easy"
+        sudo curl -o "~/wg-easy/docker-compose.yml" https://raw.githubusercontent.com/wg-easy/wg-easy/master/docker-compose.yml
         success "docker_compose文件下载完成"
-        sudo docker compose -f "/tmp/wg-easy/docker-compose.yml" up -d
+        sudo docker compose -f "~/wg-easy/docker-compose.yml" up -d
         success   "启动容器成功"
         title "wireguard的WebUI面板访问信息"
         success "打开网址http://$(get_public_ip):51821并登录控制面板。"
@@ -2894,33 +2944,315 @@ EOF
     printf "%s" "$client_public_key" | tr -d '\n'
 }
 
+wireguard_install(){
 
+    check_service "wg-quick@"
 
-# ------------- 子菜单功能6 -------------
-submenu6() {
+    if [[ $? -eq 2 ]]; then
+        local -A MY_PKG_MAP=(
+            ["wg"]="wireguard"
+            ["qrencode"]="qrencode"
+            ["wireguard-tools"]="wireguard-tools"
+        )
+        check_and_install_tools MY_PKG_MAP "wg" "qrencode" "wireguard-tools"
+    fi
+
+    # 开启 IP 转发
+    enable_ip_forward() {
+        if sudo sysctl net.ipv4.ip_forward | grep -q "= 0"; then
+            warn "IP 转发未开启，正在开启..."
+            sudo echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+            sudo sysctl -p
+            success "IP 转发已开启并持久化。"
+        else
+            success "IP 转发已开启。"
+        fi
+    }
+
+    title "请输入 WireGuard 服务器配置信息"
+    enable_ip_forward
     while true; do
-        select_menu "网络安全工具" "信息收集" "网站防御" "返回主菜单"
+        read -p "请输入服务器 IP 地址段 (CIDR 格式，例如 10.0.0.0/24，回车默认10.10.10.0/24): " server_cidr
+        server_cidr=${server_cidr:-10.10.10.0/24}
+        # 验证 CIDR 格式
+        if ! [[ $server_cidr =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]]; then
+            error "IP 地址段格式错误，应为 CIDR 格式，如 10.0.0.0/24"
+            continue
+        else
+            break
+        fi
+    done
+    read -p "请输入服务器公网 IP 或域名 (用于客户端连接-回车默认$(get_public_ip)): " server_endpoint
+    server_endpoint=${server_endpoint:-$(get_public_ip)}
+    while true; do
+        read -p "请输入服务器监听端口 (例如 10086(回车默认))：" server_port
+        server_port=${server_port:-10086}
+        # 验证端口
+        if ! [[ $server_port =~ ^[0-9]+$ ]] || (( server_port < 1 || server_port > 65535 )); then
+            error "端口号必须是 1-65535 之间的数字。"
+            continue
+        else
+            break
+        fi
+    done
+    read -p "请输入DNS 服务器 (回车默认 8.8.8.8)：" server_dns
+    server_dns=${server_dns:-8.8.8.8}
+    while true; do
+        read -p "需要生成的客户端数量(回车默认1)：" client_num
+        client_num=${client_num:-1}
+
+        # 验证客户端数量
+        if ! [[ $client_num =~ ^[0-9]+$ ]] || (( client_num < 1 )); then
+            error "客户端数量必须是正整数。"
+            continue
+        else
+            break
+        fi
+    done
+
+    # 计算可用 IP 范围
+    IFS='/' read -r network cidr <<< "$server_cidr"
+    IFS='.' read -r a b c d <<< "$network"
+    mask=$(( 0xffffffff << (32 - cidr) & 0xffffffff ))
+    net=$(( (a<<24) + (b<<16) + (c<<8) + d ))
+    net=$(( net & mask ))
+    max_hosts=$(( (1 << (32 - cidr)) - 2 ))
+    if (( client_num > max_hosts )); then
+        error "子网 $server_cidr 最多支持 $max_hosts 个客户端，但您请求了 $client_num 个。"
+    fi
+
+    server_ip_int=$(( net + 1 ))
+    server_ip="$(( (server_ip_int >> 24) & 255 )).$(( (server_ip_int >> 16) & 255 )).$(( (server_ip_int >> 8) & 255 )).$(( server_ip_int & 255 ))"
+    server_ip_cidr="$server_ip/$cidr"
+    success "服务器将使用 IP: $server_ip_cidr"
+
+    # 生成服务器基础配置并获取公钥
+    server_public_key=$(generate_server_base_config "$server_ip_cidr" "$server_port" | tr -d '\n')
+    echo "$server_public_key"
+
+    # 启动 WireGuard
+    start_wireguard
+
+    # 生成客户端配置并添加到服务器
+    title "生成客户端配置..."
+    for (( i=1; i<=client_num; i++ )); do
+        client_ip_int=$(( net + 1 + i ))
+        client_ip="$(( (client_ip_int >> 24) & 255 )).$(( (client_ip_int >> 16) & 255 )).$(( (client_ip_int >> 8) & 255 )).$(( client_ip_int & 255 ))"
+        client_pubkey=$(generate_client_config "$i" "$client_ip" "$server_public_key" "$server_endpoint" "$server_port" "$server_dns" | tr -d '\n')
+        add_client_peer "$i" "$client_pubkey" "$client_ip"
+    done
+
+    title "所有客户端配置已生成完毕。"
+    echo -e "${YELLOW}请确保防火墙已开放 UDP 端口 $server_port，否则客户端无法连接。${NC}" >&2
+    echo -e "您可以使用以下命令查看服务器状态：" >&2
+    echo -e "  wg show" >&2
+    echo -e "  wg-quick up wg0   # 启动接口（如果尚未启动）" >&2
+    echo -e "客户端配置文件为 client*.conf。" >&2
+    warn "如果wireguard无法联通，请重新安装更换端口试一下。"
+
+
+}
+
+wireguard_uninstall(){
+    title "开始彻底清理 WireGuard 环境..."
+
+    # 停止并禁用所有 WireGuard 接口
+    if command -v wg &>/dev/null; then
+        interfaces=$(sudo wg show interfaces)
+        for iface in $interfaces; do
+            warn "正在停止接口: $iface"
+            sudo wg-quick down "$iface" 2>/dev/null || true
+            sudo systemctl disable "wg-quick@$iface" 2>/dev/null || true
+        done
+    fi
+
+    # 删除所有配置文件和密钥
+    info "清理配置文件和密钥..."
+    sudo rm -rf /etc/wireguard/
+    sudo rm -f client*.conf client*.png  # 清理当前目录下生成的客户端文件
+
+    # 清理 IPTables 转发规则 (针对常见 NAT 配置)
+    info "检查并清理残留的 IPTables 转发规则..."
+    sudo iptables -t nat -F 2>/dev/null || true
+    sudo iptables -F FORWARD 2>/dev/null || true
+
+    # 卸载软件包
+    info "正在检测系统并卸载软件..."
+    case "$(detect_os)" in
+        ubuntu|debian|kali)
+            apt-get remove --purge -y wireguard wireguard-tools qrencode
+            apt-get autoremove -y
+            ;;
+        centos|rhel|fedora)
+            yum remove -y wireguard-tools qrencode
+            ;;
+        arch)
+            pacman -Rs --noconfirm wireguard-tools qrencode
+            ;;
+        *)
+            error "未能识别的系统类型，请手动卸载 wireguard-tools。"
+            ;;
+    esac
+    
+    success "清理完成！系统已恢复至 WireGuard 安装前的状态。"
+
+}
+
+add_wireguard_clients() {
+    # 确保接口已启动
+    if ! sudo wg show wg0 &>/dev/null; then
+        warn "接口 wg0 未运行，尝试启动..."
+        sudo wg-quick up wg0 || {
+            error "启动 wg0 失败，请检查配置。"
+        }
+    fi
+
+    #提取服务器信息
+    local server_port
+    server_port=$(grep -oP 'ListenPort\s*=\s*\K\d+' /etc/wireguard/wg0.conf)
+    local server_address_cidr
+    server_address_cidr=$(grep -oP 'Address\s*=\s*\K[0-9./]+' /etc/wireguard/wg0.conf)
+    local server_public_key
+    server_public_key=$(sudo wg show wg0 public-key | tr -d '\n')
+
+    if [[ -z "$server_port" || -z "$server_address_cidr" || -z "$server_public_key" ]]; then
+        error "无法从服务器配置中提取端口/地址/公钥，请检查 /etc/wireguard/wg0.conf。"
+    fi
+
+    # 计算子网信息
+    IFS='/' read -r network cidr <<< "$server_address_cidr"
+    IFS='.' read -r a b c d <<< "$network"
+    local net=$(( (a<<24) + (b<<16) + (c<<8) + d ))
+    local mask=$(( 0xffffffff << (32 - cidr) & 0xffffffff ))
+    net=$(( net & mask ))                         
+    local broadcast=$(( net | (~mask & 0xffffffff) ))
+    local server_ip_int=$(( net + 1 ))            
+
+    #收集已用 IP（服务器 Peer + 本地客户端文件
+    local used_ips=()
+
+    # 从服务器配置文件的 [Peer] 中提取 AllowedIPs（/32）
+    while IFS= read -r line; do
+        if [[ $line =~ AllowedIPs\s*=\s*([0-9.]+)/32 ]]; then
+            used_ips+=("${BASH_REMATCH[1]}")
+        fi
+    done < /etc/wireguard/wg0.conf
+
+    # 从本地已存在的客户端配置文件中提取 Address（防止服务器配置缺失）
+    for conf in client*.conf; do
+        [[ -f "$conf" ]] || continue
+        local addr
+        addr=$(sudo grep -oP '^\s*Address\s*=\s*\K[0-9.]+' "$conf" | head -1)
+        if [[ -n "$addr" ]]; then
+            # 避免重复加入
+            local found=0
+            for ip in "${used_ips[@]}"; do
+                [[ $ip == "$addr" ]] && { found=1; break; }
+            done
+            (( found == 0 )) && used_ips+=("$addr")
+        fi
+    done
+
+    # 计算当前最大已用 IP 整数
+    local max_ip_int=0
+    for ip in "${used_ips[@]}"; do
+        IFS='.' read -r ia ib ic id <<< "$ip"
+        local ip_int=$(( (ia<<24) + (ib<<16) + (ic<<8) + id ))
+        (( ip_int > max_ip_int )) && max_ip_int=$ip_int
+    done
+
+    # 确定下一个可用 IP
+    local next_ip_int
+    if (( ${#used_ips[@]} == 0 )); then
+        next_ip_int=$(( server_ip_int + 1 ))      # 第一个客户端从 .2 开始
+    else
+        next_ip_int=$(( max_ip_int + 1 ))
+    fi
+
+    if (( next_ip_int > broadcast - 1 )); then
+        error "子网已满，无可用 IP（广播地址: $broadcast，下一个: $next_ip_int）"
+    fi
+
+    title "向 WireGuard 服务器添加新客户端"
+    info "当前网络段: $server_address_cidr   端口: $server_port"
+    info "下一个可用 IP: $(( (next_ip_int>>24)&255 )).$(( (next_ip_int>>16)&255 )).$(( (next_ip_int>>8)&255 )).$(( next_ip_int&255 ))"
+
+    read -p "请输入服务器公网 IP 或域名（回车默认$(get_public_ip)）: " server_endpoint
+    server_endpoint=${server_endpoint:-$(get_public_ip)}
+
+    read -p "请输入 DNS 服务器（回车默认 8.8.8.8）: " server_dns
+    server_dns=${server_dns:-8.8.8.8}
+
+    local client_num
+    while true; do
+        read -p "需要添加的客户端数量: " client_num
+        if ! [[ $client_num =~ ^[0-9]+$ ]] || (( client_num < 1 )); then
+            error "请输入正整数"
+            continue
+        fi
+        # 检查剩余 IP 数量
+        local remaining=$(( (broadcast - 1) - next_ip_int + 1 ))
+        if (( client_num > remaining )); then
+            error "剩余 $remaining 个可用 IP，无法添加 $client_num 个客户端"
+            continue
+        fi
+        break
+    done
+
+    # 确定客户端文件名起始编号
+    local start_index=1
+    for f in client*.conf; do
+        [[ -f $f ]] || continue
+        if [[ $f =~ client([0-9]+)\.conf ]]; then
+            num=${BASH_REMATCH[1]}
+            (( num >= start_index )) && start_index=$(( num + 1 ))
+        fi
+    done
+
+    for (( i=0; i<client_num; i++ )); do
+        local client_ip_int=$(( next_ip_int + i ))
+        local client_ip="$(( (client_ip_int>>24)&255 )).$(( (client_ip_int>>16)&255 )).$(( (client_ip_int>>8)&255 )).$(( client_ip_int&255 ))"
+        local client_pubkey
+        client_pubkey=$(generate_client_config "$start_index" "$client_ip" "$server_public_key" "$server_endpoint" "$server_port" "$server_dns" | tr -d '\n')
+        add_client_peer "$start_index" "$client_pubkey" "$client_ip"
+        (( start_index++ ))
+    done
+
+    title "全部新客户端已添加并生成配置文件。"
+    warn "请确保防火墙已开放 UDP ${server_port}"
+    info "客户端配置文件为 client*.conf"
+}
+# ===========================================
+
+
+
+
+
+# ------------- 子菜单功能4 -------------
+submenu4() {
+    while true; do
+        select_menu "子菜单功能4(网络安全工具)- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回主菜单" "fail2ban"
         choice=$?
         case $choice in
-            0) clear;sleep 1;;
-            1) clear;submenu6-2 ;;
-            2) return ;;
+            0) return ;;
+            1) clear;submenu4-1 ;;
         esac
     done
 }
 
-submenu6-2(){
+submenu4-1(){
     while true; do
-        select_menu "网站防御" "Cloudflare + Nginx + fail2ban  静态IP封禁(外防御)" "Cloudflare + Nginx + Lua + Redis 动态IP封禁(内防御)" "返回上级菜单"
+        select_menu "fail2ban" "返回上级菜单" "Cloudflare + Nginx + fail2ban  静态IP封禁(外防御)" "Cloudflare + Nginx + Lua + Redis 动态IP封禁(内防御)"
         choice=$?
         case $choice in
-            0) clear;cf_fail2ban_panel;;
-            1) clear;cf_lua_redis_panel;;
-            2) return ;;
+            0) return ;;
+            1) clear;cf_fail2ban_panel;;
+            2) clear;cf_lua_redis_panel;;
         esac
     done
 }
 
+# ===========================================
 cf_fail2ban_panel(){
     local cf_fail2ban_status
     while true; do
@@ -2930,14 +3262,14 @@ cf_fail2ban_panel(){
             1) cf_fail2ban_status="服务存在但未运行" ;;
             2) cf_fail2ban_status=$(check_docker "fail2ban") ;;
         esac
-        select_menu "Cloudflare + Nginx + fail2ban防御 状态：$cf_fail2ban_status" "安装并运行" "查看监狱小黑屋" "解封IP地址" "卸载清理"  "返回上级菜单"
+        select_menu "Cloudflare + Nginx + fail2ban防御 状态：$cf_fail2ban_status"  "返回上级菜单" "安装并运行" "查看监狱小黑屋" "解封IP地址" "卸载清理"
         choice=$?
         case $choice in
-            0) clear;cf_fail2ban_install;go_back;;
-            1) clear;if check_cmd "fail2ban-client"; then  title "查看特定监狱的封禁状态"; sudo fail2ban-client status nginx-limit  ;else warn "fail2ban未安装运行" ;fi ;go_back;;
-            2) clear;if check_cmd "fail2ban-client"; then unblock_ip ;else warn "fail2ban未安装运行" ;fi ;go_back;;
-            3) clear;if check_cmd "fail2ban-client"; then cf_fail2ban_uninstall ;else warn "fail2ban未安装运行" ;fi ;go_back;;
-            4) return ;;
+            0) return ;;
+            1) clear;cf_fail2ban_install;go_back;;
+            2) clear;if check_cmd "fail2ban-client"; then  title "查看特定监狱的封禁状态"; sudo fail2ban-client status nginx-limit  ;else warn "fail2ban未安装运行" ;fi ;go_back;;
+            3) clear;if check_cmd "fail2ban-client"; then unblock_ip ;else warn "fail2ban未安装运行" ;fi ;go_back;;
+            4) clear;if check_cmd "fail2ban-client"; then cf_fail2ban_uninstall ;else warn "fail2ban未安装运行" ;fi ;go_back;;
         esac
     done
 }
@@ -3057,10 +3389,7 @@ EOF
             sudo systemctl restart fail2ban
             success "Fail2ban 配置已完成，Cloudflare IP 已加入白名单保护"
         fi
-
-
     fi
-
 }
 
 
@@ -3132,9 +3461,7 @@ cf_fail2ban_uninstall(){
             done
         fi
     fi
-
     success "卸载完成"
-
 }
 
 cf_lua_redis_panel(){
@@ -3553,35 +3880,25 @@ cf_lua_redis_uninstall(){
     systemctl restart nginx
     info "✅ 卸载完成。"
 }
+# ===========================================
 
 
 
 
+# ------------- 子菜单功能5 -------------
 
-# ------------- 子菜单功能7 -------------
-
-submenu7() {
+submenu5() {
     while true; do
-        select_menu "其他扩展工具" "API密钥管理相关" "自动化工作流" "返回主菜单"
+        select_menu "子菜单功能5(AI開発工具)- 当前系统: $(detect_os)　$(get_hostname) ($(get_public_ip))" "返回主菜单" "CLIProxyAPI"
         choice=$?
         case $choice in
-            0) clear;submenu7-1;;
-            1) return ;;
+            0) return ;;
+            1) clear;cliproxyapi_panel;;
         esac
     done
 }
 
-submenu7-1(){
-    while true; do
-        select_menu "API密钥管理相关" "CLIProxyAPI" "返回主菜单"
-        choice=$?
-        case $choice in
-            0) clear;cliproxyapi_panel;;
-            1) return ;;
-        esac
-    done
-}
-
+# ===========================================
 cliproxyapi_panel(){
     local cliproxyapi_status
     while true; do
@@ -3592,19 +3909,19 @@ cliproxyapi_panel(){
         else
             cliproxyapi_status="未安装"
         fi
-        select_menu "CLIProxyAPI 状态：$cliproxyapi_status" "安装并运行(一键脚本)"  "卸载cliproxyapi(sh)" "返回上级菜单"
+        select_menu "CLIProxyAPI 状态：$cliproxyapi_status" "返回上级菜单" "安装并运行(sh)"  "卸载cliproxyapi(sh)"
         choice=$?
         case $choice in
-            0) clear; cliproxyapi_install_sh ;go_back;;
-            1) clear;if systemctl --user is-active --quiet cliproxyapi; then  cliproxyapi_uninstall_sh ;else warn "cliproxyapi未安装运行" ;fi ;go_back;;
-            2) return ;;
+            0) return ;;
+            1) clear; cliproxyapi_install_sh ;go_back;;
+            2) clear;if systemctl --user is-active --quiet cliproxyapi; then  cliproxyapi_uninstall_sh ;else warn "cliproxyapi未安装运行" ;fi ;go_back;;
         esac
     done
 }
 
 cliproxyapi_install_sh(){
     title "安装 cliproxyapi ..." 
-    curl -fsSL https://raw.githubusercontent.com/brokechubb/cliproxyapi-installer/refs/heads/master/cliproxyapi-installer | bash 
+    curl -fsSL https://raw.githubusercontent.com/router-for-me/cliproxyapi-installer/refs/heads/master/cliproxyapi-installer | bash 
     clear
     title "设置管理密钥"
     CONFIG_FILE="$PWD/cliproxyapi/config.yaml"
@@ -3641,15 +3958,11 @@ cliproxyapi_install_sh(){
         systemctl --user start cliproxyapi.service
         success "访问Web UI的IP地址为：http://$(get_public_ip):8317/management.html#/login"
     fi
-
-
 }
 
 cliproxyapi_uninstall_sh(){
     title "卸载 cliproxyapi ..." 
-
     curl -fsSL https://raw.githubusercontent.com/brokechubb/cliproxyapi-installer/refs/heads/master/cliproxyapi-installer | bash -s uninstall
-
     info "停止服务"
     systemctl --user stop cliproxyapi.service
     info "禁用服务"
@@ -3661,290 +3974,12 @@ cliproxyapi_uninstall_sh(){
     systemctl --user daemon-reload
     success "卸载完成"
 }
-
+# ===========================================
 
    
 
 #----------------------------------------
 
-wireguard_install(){
-
-    check_service "wg-quick@"
-
-    if [[ $? -eq 2 ]]; then
-        local -A MY_PKG_MAP=(
-            ["wg"]="wireguard"
-            ["qrencode"]="qrencode"
-            ["wireguard-tools"]="wireguard-tools"
-        )
-        check_and_install_tools MY_PKG_MAP "wg" "qrencode" "wireguard-tools"
-    fi
-
-    # 开启 IP 转发
-    enable_ip_forward() {
-        if sudo sysctl net.ipv4.ip_forward | grep -q "= 0"; then
-            warn "IP 转发未开启，正在开启..."
-            sudo echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-            sudo sysctl -p
-            success "IP 转发已开启并持久化。"
-        else
-            success "IP 转发已开启。"
-        fi
-    }
-
-    title "请输入 WireGuard 服务器配置信息"
-    enable_ip_forward
-    while true; do
-        read -p "请输入服务器 IP 地址段 (CIDR 格式，例如 10.0.0.0/24，回车默认10.10.10.0/24): " server_cidr
-        server_cidr=${server_cidr:-10.10.10.0/24}
-        # 验证 CIDR 格式
-        if ! [[ $server_cidr =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}$ ]]; then
-            error "IP 地址段格式错误，应为 CIDR 格式，如 10.0.0.0/24"
-            continue
-        else
-            break
-        fi
-    done
-    read -p "请输入服务器公网 IP 或域名 (用于客户端连接-回车默认$(get_public_ip)): " server_endpoint
-    server_endpoint=${server_endpoint:-$(get_public_ip)}
-    while true; do
-        read -p "请输入服务器监听端口 (例如 10086(回车默认))：" server_port
-        server_port=${server_port:-10086}
-        # 验证端口
-        if ! [[ $server_port =~ ^[0-9]+$ ]] || (( server_port < 1 || server_port > 65535 )); then
-            error "端口号必须是 1-65535 之间的数字。"
-            continue
-        else
-            break
-        fi
-    done
-    read -p "请输入DNS 服务器 (回车默认 8.8.8.8)：" server_dns
-    server_dns=${server_dns:-8.8.8.8}
-    while true; do
-        read -p "需要生成的客户端数量(回车默认1)：" client_num
-        client_num=${client_num:-1}
-
-        # 验证客户端数量
-        if ! [[ $client_num =~ ^[0-9]+$ ]] || (( client_num < 1 )); then
-            error "客户端数量必须是正整数。"
-            continue
-        else
-            break
-        fi
-    done
-
-    # 计算可用 IP 范围
-    IFS='/' read -r network cidr <<< "$server_cidr"
-    IFS='.' read -r a b c d <<< "$network"
-    mask=$(( 0xffffffff << (32 - cidr) & 0xffffffff ))
-    net=$(( (a<<24) + (b<<16) + (c<<8) + d ))
-    net=$(( net & mask ))
-    max_hosts=$(( (1 << (32 - cidr)) - 2 ))
-    if (( client_num > max_hosts )); then
-        error "子网 $server_cidr 最多支持 $max_hosts 个客户端，但您请求了 $client_num 个。"
-    fi
-
-    server_ip_int=$(( net + 1 ))
-    server_ip="$(( (server_ip_int >> 24) & 255 )).$(( (server_ip_int >> 16) & 255 )).$(( (server_ip_int >> 8) & 255 )).$(( server_ip_int & 255 ))"
-    server_ip_cidr="$server_ip/$cidr"
-    success "服务器将使用 IP: $server_ip_cidr"
-
-    # 生成服务器基础配置并获取公钥
-    server_public_key=$(generate_server_base_config "$server_ip_cidr" "$server_port" | tr -d '\n')
-    echo "$server_public_key"
-
-    # 启动 WireGuard
-    start_wireguard
-
-    # 生成客户端配置并添加到服务器
-    title "生成客户端配置..."
-    for (( i=1; i<=client_num; i++ )); do
-        client_ip_int=$(( net + 1 + i ))
-        client_ip="$(( (client_ip_int >> 24) & 255 )).$(( (client_ip_int >> 16) & 255 )).$(( (client_ip_int >> 8) & 255 )).$(( client_ip_int & 255 ))"
-        client_pubkey=$(generate_client_config "$i" "$client_ip" "$server_public_key" "$server_endpoint" "$server_port" "$server_dns" | tr -d '\n')
-        add_client_peer "$i" "$client_pubkey" "$client_ip"
-    done
-
-    title "所有客户端配置已生成完毕。"
-    echo -e "${YELLOW}请确保防火墙已开放 UDP 端口 $server_port，否则客户端无法连接。${NC}" >&2
-    echo -e "您可以使用以下命令查看服务器状态：" >&2
-    echo -e "  wg show" >&2
-    echo -e "  wg-quick up wg0   # 启动接口（如果尚未启动）" >&2
-    echo -e "客户端配置文件为 client*.conf。" >&2
-    warn "如果wireguard无法联通，请重新安装更换端口试一下。"
-
-
-}
-
-wireguard_uninstall(){
-    title "开始彻底清理 WireGuard 环境..."
-
-    # 停止并禁用所有 WireGuard 接口
-    if command -v wg &>/dev/null; then
-        interfaces=$(sudo wg show interfaces)
-        for iface in $interfaces; do
-            warn "正在停止接口: $iface"
-            sudo wg-quick down "$iface" 2>/dev/null || true
-            sudo systemctl disable "wg-quick@$iface" 2>/dev/null || true
-        done
-    fi
-
-    # 删除所有配置文件和密钥
-    info "清理配置文件和密钥..."
-    sudo rm -rf /etc/wireguard/
-    sudo rm -f client*.conf client*.png  # 清理当前目录下生成的客户端文件
-
-    # 清理 IPTables 转发规则 (针对常见 NAT 配置)
-    info "检查并清理残留的 IPTables 转发规则..."
-    sudo iptables -t nat -F 2>/dev/null || true
-    sudo iptables -F FORWARD 2>/dev/null || true
-
-    # 卸载软件包
-    info "正在检测系统并卸载软件..."
-    case "$(detect_os)" in
-        ubuntu|debian|kali)
-            apt-get remove --purge -y wireguard wireguard-tools qrencode
-            apt-get autoremove -y
-            ;;
-        centos|rhel|fedora)
-            yum remove -y wireguard-tools qrencode
-            ;;
-        arch)
-            pacman -Rs --noconfirm wireguard-tools qrencode
-            ;;
-        *)
-            error "未能识别的系统类型，请手动卸载 wireguard-tools。"
-            ;;
-    esac
-    
-    success "清理完成！系统已恢复至 WireGuard 安装前的状态。"
-
-}
-
-add_wireguard_clients() {
-    # 确保接口已启动
-    if ! sudo wg show wg0 &>/dev/null; then
-        warn "接口 wg0 未运行，尝试启动..."
-        sudo wg-quick up wg0 || {
-            error "启动 wg0 失败，请检查配置。"
-        }
-    fi
-
-    #提取服务器信息
-    local server_port
-    server_port=$(grep -oP 'ListenPort\s*=\s*\K\d+' /etc/wireguard/wg0.conf)
-    local server_address_cidr
-    server_address_cidr=$(grep -oP 'Address\s*=\s*\K[0-9./]+' /etc/wireguard/wg0.conf)
-    local server_public_key
-    server_public_key=$(sudo wg show wg0 public-key | tr -d '\n')
-
-    if [[ -z "$server_port" || -z "$server_address_cidr" || -z "$server_public_key" ]]; then
-        error "无法从服务器配置中提取端口/地址/公钥，请检查 /etc/wireguard/wg0.conf。"
-    fi
-
-    # 计算子网信息
-    IFS='/' read -r network cidr <<< "$server_address_cidr"
-    IFS='.' read -r a b c d <<< "$network"
-    local net=$(( (a<<24) + (b<<16) + (c<<8) + d ))
-    local mask=$(( 0xffffffff << (32 - cidr) & 0xffffffff ))
-    net=$(( net & mask ))                         
-    local broadcast=$(( net | (~mask & 0xffffffff) ))
-    local server_ip_int=$(( net + 1 ))            
-
-    #收集已用 IP（服务器 Peer + 本地客户端文件
-    local used_ips=()
-
-    # 从服务器配置文件的 [Peer] 中提取 AllowedIPs（/32）
-    while IFS= read -r line; do
-        if [[ $line =~ AllowedIPs\s*=\s*([0-9.]+)/32 ]]; then
-            used_ips+=("${BASH_REMATCH[1]}")
-        fi
-    done < /etc/wireguard/wg0.conf
-
-    # 从本地已存在的客户端配置文件中提取 Address（防止服务器配置缺失）
-    for conf in client*.conf; do
-        [[ -f "$conf" ]] || continue
-        local addr
-        addr=$(sudo grep -oP '^\s*Address\s*=\s*\K[0-9.]+' "$conf" | head -1)
-        if [[ -n "$addr" ]]; then
-            # 避免重复加入
-            local found=0
-            for ip in "${used_ips[@]}"; do
-                [[ $ip == "$addr" ]] && { found=1; break; }
-            done
-            (( found == 0 )) && used_ips+=("$addr")
-        fi
-    done
-
-    # 计算当前最大已用 IP 整数
-    local max_ip_int=0
-    for ip in "${used_ips[@]}"; do
-        IFS='.' read -r ia ib ic id <<< "$ip"
-        local ip_int=$(( (ia<<24) + (ib<<16) + (ic<<8) + id ))
-        (( ip_int > max_ip_int )) && max_ip_int=$ip_int
-    done
-
-    # 确定下一个可用 IP
-    local next_ip_int
-    if (( ${#used_ips[@]} == 0 )); then
-        next_ip_int=$(( server_ip_int + 1 ))      # 第一个客户端从 .2 开始
-    else
-        next_ip_int=$(( max_ip_int + 1 ))
-    fi
-
-    if (( next_ip_int > broadcast - 1 )); then
-        error "子网已满，无可用 IP（广播地址: $broadcast，下一个: $next_ip_int）"
-    fi
-
-    title "向 WireGuard 服务器添加新客户端"
-    info "当前网络段: $server_address_cidr   端口: $server_port"
-    info "下一个可用 IP: $(( (next_ip_int>>24)&255 )).$(( (next_ip_int>>16)&255 )).$(( (next_ip_int>>8)&255 )).$(( next_ip_int&255 ))"
-
-    read -p "请输入服务器公网 IP 或域名（回车默认$(get_public_ip)）: " server_endpoint
-    server_endpoint=${server_endpoint:-$(get_public_ip)}
-
-    read -p "请输入 DNS 服务器（回车默认 8.8.8.8）: " server_dns
-    server_dns=${server_dns:-8.8.8.8}
-
-    local client_num
-    while true; do
-        read -p "需要添加的客户端数量: " client_num
-        if ! [[ $client_num =~ ^[0-9]+$ ]] || (( client_num < 1 )); then
-            error "请输入正整数"
-            continue
-        fi
-        # 检查剩余 IP 数量
-        local remaining=$(( (broadcast - 1) - next_ip_int + 1 ))
-        if (( client_num > remaining )); then
-            error "剩余 $remaining 个可用 IP，无法添加 $client_num 个客户端"
-            continue
-        fi
-        break
-    done
-
-    # 确定客户端文件名起始编号
-    local start_index=1
-    for f in client*.conf; do
-        [[ -f $f ]] || continue
-        if [[ $f =~ client([0-9]+)\.conf ]]; then
-            num=${BASH_REMATCH[1]}
-            (( num >= start_index )) && start_index=$(( num + 1 ))
-        fi
-    done
-
-    for (( i=0; i<client_num; i++ )); do
-        local client_ip_int=$(( next_ip_int + i ))
-        local client_ip="$(( (client_ip_int>>24)&255 )).$(( (client_ip_int>>16)&255 )).$(( (client_ip_int>>8)&255 )).$(( client_ip_int&255 ))"
-        local client_pubkey
-        client_pubkey=$(generate_client_config "$start_index" "$client_ip" "$server_public_key" "$server_endpoint" "$server_port" "$server_dns" | tr -d '\n')
-        add_client_peer "$start_index" "$client_pubkey" "$client_ip"
-        (( start_index++ ))
-    done
-
-    title "全部新客户端已添加并生成配置文件。"
-    warn "请确保防火墙已开放 UDP ${server_port}"
-    info "客户端配置文件为 client*.conf"
-}
 
 # 运行主菜单
 main_menu
