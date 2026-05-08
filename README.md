@@ -1,4 +1,4 @@
-# skills_tools
+# ssh_tools.sh
 
 一个方便你在服务器上快速部署服务的脚本文件
 
@@ -6,42 +6,9 @@
 
 **适用系统**：Ubuntu 20.04+ / Debian 11+ / CentOS 7+ (需支持 systemd)
 
-# 菜单功能
-1. 系统源更新/设置
-	1. 系统源的更新
-	2. 设置系统定时执行的任务
-2. 系统测试常用的工具
-	1. 获取系统信息详细
-	2. 服务器网络测试
-	3. 服务器性能测试(硬盘读/写)
-	4. 硬盘挂载
-3. 网站建站工具
-	1. 安装1panel面板
-	2. 安装宝塔面板
-	3. 安装Nginx和设置反向代理
-4. 系统面板管理工具
-	1. Prometheus（普罗米修斯）面板
-	2. 哪吒面板（一键安装脚步）
-	3. Komari面板
-	4. Beszel面板
-5. VPN搭建工具
-	1. 安装3x-ui面板
-	2. winguard异地组网
-6. 网络安全工具
-	1. 信息收集
-	2. 网站防御
-		1. Cloudflare + Nginx + fail2ban  静态IP封禁(外防御)
-		2. Cloudflare + Nginx + Lua + Redis 动态IP封禁(内防御)
-7. 其他扩展工具
-	1. API密钥管理相关
-		1. CLIProxyAPI
-8. 退出
-
-
-
-
-
-
+# 安装
+wget https://raw.githubusercontent.com/hst1189/ssh_tools/main/ssh_tools.sh
+curl -O https://raw.githubusercontent.com/hst1189/ssh_tools/main/ssh_tools.sh
 
 
 # 参考文档
