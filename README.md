@@ -8,6 +8,7 @@
 
 # 安装
 wget https://raw.githubusercontent.com/hst1189/ssh_tools/main/ssh_tools.sh
+
 curl -O https://raw.githubusercontent.com/hst1189/ssh_tools/main/ssh_tools.sh
 
 
